@@ -10,7 +10,7 @@ export function PricingSection() {
       price: 39,
       description: 'Perfect for small brokers just getting started',
       features: [
-        'Up to 5 vendors',
+        'Up to 3 vendors',
         'Basic kanban pipeline',
         '50 deals per month',
         'Email support',
@@ -25,7 +25,7 @@ export function PricingSection() {
       price: 99,
       description: 'Ideal for growing broker operations',
       features: [
-        'Up to 25 vendors',
+        'Up to 10 vendors',
         'Advanced pipeline management',
         '200 deals per month',
         'Priority support',
@@ -38,7 +38,7 @@ export function PricingSection() {
       popular: true,
     },
     {
-      name: 'Enterprise',
+      name: 'Premium',
       price: 397,
       description: 'For large broker operations',
       features: [
