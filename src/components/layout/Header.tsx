@@ -12,7 +12,7 @@ export function Header() {
       <nav className="mx-auto flex max-w-7xl items-center justify-between p-6 lg:px-8" aria-label="Global">
         <div className="flex lg:flex-1">
           <Link href="/" className="-m-1.5 p-1.5">
-            <span className="text-2xl font-bold text-indigo-600">EquipFinance</span>
+            <span className="text-2xl font-bold bg-gradient-to-r from-green-600 to-orange-600 bg-clip-text text-transparent">EquipFinance</span>
           </Link>
         </div>
         <div className="flex lg:hidden">
@@ -28,21 +28,21 @@ export function Header() {
           </button>
         </div>
         <div className="hidden lg:flex lg:gap-x-12">
-          <Link href="#features" className="text-sm font-semibold leading-6 text-gray-900 hover:text-indigo-600">
+          <Link href="#features" className="text-sm font-semibold leading-6 text-gray-900 hover:text-green-600 transition-colors duration-200">
             Features
           </Link>
-          <Link href="#pricing" className="text-sm font-semibold leading-6 text-gray-900 hover:text-indigo-600">
+          <Link href="#pricing" className="text-sm font-semibold leading-6 text-gray-900 hover:text-orange-600 transition-colors duration-200">
             Pricing
           </Link>
-          <Link href="/contact" className="text-sm font-semibold leading-6 text-gray-900 hover:text-indigo-600">
+          <Link href="/contact" className="text-sm font-semibold leading-6 text-gray-900 hover:text-green-600 transition-colors duration-200">
             Contact
           </Link>
         </div>
         <div className="hidden lg:flex lg:flex-1 lg:justify-end lg:gap-x-4">
-          <Button asChild variant="ghost">
+          <Button asChild variant="ghost" className="hover:text-green-600">
             <Link href="/login">Sign In</Link>
           </Button>
-          <Button asChild>
+          <Button asChild className="bg-gradient-to-r from-green-600 to-emerald-700 hover:from-green-700 hover:to-emerald-800">
             <Link href="/signup">Get Started</Link>
           </Button>
         </div>
