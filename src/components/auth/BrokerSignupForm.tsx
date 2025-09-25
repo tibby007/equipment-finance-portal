@@ -46,6 +46,12 @@ export function BrokerSignupForm() {
       setLoading(true)
       setError('')
 
+      // Check if Supabase is configured
+      if (!process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL === 'placeholder-url') {
+        setError('Authentication system is not configured. Please contact support.')
+        return
+      }
+
       // Sign up the user
       const authResult = await signUp(data.email, data.password, {
         userType: 'broker'

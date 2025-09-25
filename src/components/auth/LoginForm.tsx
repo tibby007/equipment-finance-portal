@@ -35,6 +35,12 @@ export function LoginForm() {
     try {
       setLoading(true)
       setError('')
+
+      // Check if Supabase is configured
+      if (!process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL === 'placeholder-url') {
+        setError('Authentication system is not configured. Please contact support.')
+        return
+      }
       
       await signInWithEmail(data.email, data.password)
       router.push('/dashboard')
