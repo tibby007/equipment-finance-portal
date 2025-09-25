@@ -7,7 +7,7 @@ export function PricingSection() {
   const plans = [
     {
       name: 'Starter',
-      price: 99,
+      price: 39,
       description: 'Perfect for small brokers just getting started',
       features: [
         'Up to 5 vendors',
@@ -22,7 +22,7 @@ export function PricingSection() {
     },
     {
       name: 'Professional',
-      price: 299,
+      price: 99,
       description: 'Ideal for growing broker operations',
       features: [
         'Up to 25 vendors',
@@ -39,7 +39,7 @@ export function PricingSection() {
     },
     {
       name: 'Enterprise',
-      price: 599,
+      price: 397,
       description: 'For large broker operations',
       features: [
         'Unlimited vendors',
