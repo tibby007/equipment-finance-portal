@@ -17,7 +17,7 @@ const signupSchema = z.object({
   password: z.string().min(8, 'Password must be at least 8 characters'),
   confirmPassword: z.string(),
   companyName: z.string().min(2, 'Company name is required'),
-  subscriptionTier: z.enum(['starter', 'pro', 'premium']).default('starter'),
+  subscriptionTier: z.enum(['starter', 'pro', 'premium']),
 }).refine((data) => data.password === data.confirmPassword, {
   message: "Passwords don't match",
   path: ["confirmPassword"],
@@ -36,6 +36,9 @@ export function BrokerSignupForm() {
     formState: { errors },
   } = useForm<SignupFormData>({
     resolver: zodResolver(signupSchema),
+    defaultValues: {
+      subscriptionTier: 'starter'
+    }
   })
 
   const onSubmit = async (data: SignupFormData) => {
@@ -44,16 +47,16 @@ export function BrokerSignupForm() {
       setError('')
 
       // Sign up the user
-      const { data: authData } = await signUp(data.email, data.password, {
+      const authResult = await signUp(data.email, data.password, {
         userType: 'broker'
       })
 
-      if (authData.user) {
+      if (authResult.user) {
         // Create broker profile
         const { error: brokerError } = await supabase
           .from('brokers')
           .insert({
-            id: authData.user.id,
+            id: authResult.user.id,
             email: data.email,
             company_name: data.companyName,
             subscription_tier: data.subscriptionTier,
@@ -63,8 +66,8 @@ export function BrokerSignupForm() {
 
         router.push('/dashboard')
       }
-    } catch (err: any) {
-      setError(err.message || 'An error occurred during signup')
+    } catch (err: unknown) {
+      setError((err as Error).message || 'An error occurred during signup')
     } finally {
       setLoading(false)
     }

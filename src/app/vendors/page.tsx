@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 import { useRouter } from 'next/navigation'
 import { DashboardLayout } from '@/components/layout/DashboardLayout'
@@ -25,9 +25,9 @@ export default function VendorsPage() {
       return
     }
     loadVendors()
-  }, [authUser])
+  }, [authUser, router])
 
-  const loadVendors = async () => {
+  const loadVendors = useCallback(async () => {
     if (!authUser) return
 
     try {
@@ -44,7 +44,7 @@ export default function VendorsPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [authUser])
 
   const handleInviteSuccess = () => {
     setShowInviteForm(false)
@@ -96,7 +96,7 @@ export default function VendorsPage() {
                 <div className="text-center py-8 text-muted-foreground">
                   <p>No vendors found.</p>
                   <p className="mt-2">
-                    Use the "Invite Vendor" button above to get started.
+                    Use the &quot;Invite Vendor&quot; button above to get started.
                   </p>
                 </div>
               ) : (

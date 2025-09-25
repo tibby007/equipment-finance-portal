@@ -131,7 +131,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                     <AvatarFallback className="text-xs">
                       {authUser.profile.company_name?.charAt(0) || 
                        (authUser.userType === 'vendor' && 
-                        (authUser.profile as any).first_name?.charAt(0)) || 
+                        (authUser.profile as { first_name?: string }).first_name?.charAt(0)) || 
                        'U'}
                     </AvatarFallback>
                   </Avatar>
@@ -139,7 +139,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                     <span className="font-medium">
                       {authUser.userType === 'broker' 
                         ? authUser.profile.company_name 
-                        : `${(authUser.profile as any).first_name} ${(authUser.profile as any).last_name}`}
+                        : `${(authUser.profile as { first_name: string; last_name: string }).first_name} ${(authUser.profile as { first_name: string; last_name: string }).last_name}`}
                     </span>
                     <span className="text-xs text-muted-foreground capitalize">
                       {authUser.userType}

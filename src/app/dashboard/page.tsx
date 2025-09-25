@@ -24,12 +24,11 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    if (authUser) {
-      loadDashboardStats()
-    }
+    loadDashboardStats()
   }, [authUser])
 
   const loadDashboardStats = async () => {
+    if (!authUser) return
     try {
       let query = supabase.from('deals').select('current_stage, deal_amount')
 

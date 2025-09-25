@@ -1,6 +1,7 @@
 'use client'
 
 import { BrokerSignupForm } from '@/components/auth/BrokerSignupForm'
+import Link from 'next/link'
 
 export default function SignupPage() {
   return (
@@ -12,12 +13,12 @@ export default function SignupPage() {
           </h2>
           <p className="mt-2 text-sm text-gray-600">
             Already have an account?{' '}
-            <a
+            <Link
               href="/"
               className="font-medium text-indigo-600 hover:text-indigo-500"
             >
               Sign in here
-            </a>
+            </Link>
           </p>
         </div>
         <BrokerSignupForm />

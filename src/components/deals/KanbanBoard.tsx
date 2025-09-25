@@ -12,7 +12,6 @@ import {
 } from '@dnd-kit/core'
 import {
   SortableContext,
-  arrayMove,
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable'
 import { useSortable } from '@dnd-kit/sortable'
@@ -166,9 +165,7 @@ export function KanbanBoard({ onDealClick = () => {} }: KanbanBoardProps) {
   )
 
   useEffect(() => {
-    if (authUser) {
-      loadDeals()
-    }
+    loadDeals()
   }, [authUser])
 
   const loadDeals = async () => {

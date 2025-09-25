@@ -128,8 +128,8 @@ export function VendorInviteForm({ onSuccess }: VendorInviteFormProps) {
         reset()
         onSuccess?.()
       }
-    } catch (err: any) {
-      setError(err.message || 'An error occurred while sending the invitation')
+    } catch (err: unknown) {
+      setError((err as Error).message || 'An error occurred while sending the invitation')
     } finally {
       setLoading(false)
     }

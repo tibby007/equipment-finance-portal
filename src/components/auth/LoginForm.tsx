@@ -38,8 +38,8 @@ export function LoginForm() {
       
       await signInWithEmail(data.email, data.password)
       router.push('/dashboard')
-    } catch (err: any) {
-      setError(err.message || 'An error occurred during login')
+    } catch (err: unknown) {
+      setError((err as Error).message || 'An error occurred during login')
     } finally {
       setLoading(false)
     }
