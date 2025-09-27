@@ -94,6 +94,11 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
       icon: '📊',
     },
     {
+      title: 'Prequalification',
+      href: '/prequalification',
+      icon: '🎯',
+    },
+    {
       title: 'My Deals',
       href: '/deals',
       icon: '💼',
