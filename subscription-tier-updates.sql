@@ -1,13 +1,16 @@
 -- Update broker_settings table with proper subscription tiers and limits
 -- Run this in Supabase SQL Editor
 
--- Update subscription tier enum to match the new tiers
+-- First, drop any existing constraint to avoid conflicts
 ALTER TABLE broker_settings DROP CONSTRAINT IF EXISTS broker_settings_subscription_tier_check;
+
+-- Update all existing data to use the new tier names
+UPDATE broker_settings SET subscription_tier = 'starter' WHERE subscription_tier = 'basic';
+UPDATE broker_settings SET subscription_tier = 'starter' WHERE subscription_tier NOT IN ('starter', 'professional', 'premium');
+
+-- Now add the constraint after all data is cleaned up
 ALTER TABLE broker_settings ADD CONSTRAINT broker_settings_subscription_tier_check
     CHECK (subscription_tier IN ('starter', 'professional', 'premium'));
-
--- Update existing 'basic' tier to 'starter'
-UPDATE broker_settings SET subscription_tier = 'starter' WHERE subscription_tier = 'basic';
 
 -- Add subscription tracking columns to brokers table
 ALTER TABLE brokers ADD COLUMN IF NOT EXISTS subscription_status TEXT DEFAULT 'active';

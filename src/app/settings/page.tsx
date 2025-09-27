@@ -12,8 +12,9 @@ import { Label } from '@/components/ui/label'
 import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Separator } from '@/components/ui/separator'
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { supabase } from '@/lib/supabase'
-import { SubscriptionService, SUBSCRIPTION_PRICING, SUBSCRIPTION_LIMITS } from '@/lib/subscription'
+import { SubscriptionService, SUBSCRIPTION_PRICING, SUBSCRIPTION_LIMITS, type SubscriptionTier } from '@/lib/subscription'
 
 interface BrokerSettings {
   id?: string
@@ -42,6 +43,7 @@ export default function SettingsPage() {
   const [settings, setSettings] = useState<BrokerSettings | null>(null)
   const [saving, setSaving] = useState(false)
   const [uploading, setUploading] = useState(false)
+  const [upgrading, setUpgrading] = useState(false)
   const [usage, setUsage] = useState({ currentVendorCount: 0, currentMonthDeals: 0, storageUsedMB: 0 })
 
   useEffect(() => {
@@ -191,12 +193,31 @@ export default function SettingsPage() {
     const premiumFeatures = ['domain', 'css', 'emails']
 
     if (proFeatures.includes(feature)) {
-      return tier === 'pro' || tier === 'premium'
+      return tier === 'professional' || tier === 'premium'
     }
     if (premiumFeatures.includes(feature)) {
       return tier === 'premium'
     }
     return true
+  }
+
+  const handleUpgrade = async (newTier: SubscriptionTier) => {
+    if (!authUser || !settings) return
+
+    setUpgrading(true)
+    try {
+      await SubscriptionService.updateSubscriptionTier(authUser.id, newTier)
+
+      setSettings(prev => prev ? { ...prev, subscription_tier: newTier } : null)
+      await refreshBranding()
+
+      alert(`Successfully upgraded to ${newTier} plan!`)
+    } catch (error) {
+      console.error('Error upgrading subscription:', error)
+      alert('Error upgrading subscription. Please try again.')
+    } finally {
+      setUpgrading(false)
+    }
   }
 
   if (loading) {
@@ -474,18 +495,19 @@ export default function SettingsPage() {
           </TabsContent>
 
           <TabsContent value="subscription" className="space-y-6">
+            {/* Current Plan */}
             <Card>
               <CardHeader>
-                <CardTitle>Subscription Plan</CardTitle>
+                <CardTitle>Current Plan</CardTitle>
                 <CardDescription>
-                  Manage your current plan and available features
+                  Your active subscription and usage details
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
                 <div className="flex items-center justify-between">
                   <div>
                     <h3 className="text-lg font-semibold capitalize">{settings.subscription_tier} Plan</h3>
-                    <p className="text-sm text-gray-500">Current subscription level</p>
+                    <p className="text-sm text-gray-500">${SUBSCRIPTION_PRICING[settings.subscription_tier].price}/month</p>
                   </div>
                   <Badge
                     variant={settings.subscription_tier === 'premium' ? 'default' : 'secondary'}
@@ -495,31 +517,168 @@ export default function SettingsPage() {
                   </Badge>
                 </div>
 
-                <div className="space-y-4">
-                  <h4 className="font-semibold">Available Features:</h4>
-                  <ul className="space-y-2">
-                    {getSubscriptionFeatures(settings.subscription_tier).map((feature, index) => (
-                      <li key={index} className="flex items-center space-x-2">
-                        <span className="text-green-500">✓</span>
-                        <span>{feature}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-
-                {settings.subscription_tier !== 'premium' && (
-                  <div className="mt-6 p-4 bg-gradient-to-r from-green-50 to-orange-50 rounded-lg">
-                    <h4 className="font-semibold text-gray-900">Upgrade for More Features</h4>
-                    <p className="text-sm text-gray-600 mt-1">
-                      Unlock white-label branding, custom domains, and premium support
-                    </p>
-                    <Button className="mt-3 bg-gradient-to-r from-green-600 to-orange-600 hover:from-green-700 hover:to-orange-700">
-                      Upgrade Plan
-                    </Button>
+                {/* Usage Statistics */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="p-4 border rounded-lg">
+                    <h4 className="font-semibold text-sm text-gray-700">Vendors</h4>
+                    <div className="text-2xl font-bold text-gray-900">
+                      {usage.currentVendorCount} / {SubscriptionService.formatLimit(SUBSCRIPTION_LIMITS[settings.subscription_tier].maxVendors)}
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
+                      <div
+                        className="bg-green-600 h-2 rounded-full"
+                        style={{ width: `${SubscriptionService.calculateUsagePercentage(usage.currentVendorCount, SUBSCRIPTION_LIMITS[settings.subscription_tier].maxVendors)}%` }}
+                      ></div>
+                    </div>
                   </div>
-                )}
+
+                  <div className="p-4 border rounded-lg">
+                    <h4 className="font-semibold text-sm text-gray-700">Deals This Month</h4>
+                    <div className="text-2xl font-bold text-gray-900">
+                      {usage.currentMonthDeals} / {SubscriptionService.formatLimit(SUBSCRIPTION_LIMITS[settings.subscription_tier].maxDealsPerMonth)}
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
+                      <div
+                        className="bg-orange-600 h-2 rounded-full"
+                        style={{ width: `${SubscriptionService.calculateUsagePercentage(usage.currentMonthDeals, SUBSCRIPTION_LIMITS[settings.subscription_tier].maxDealsPerMonth)}%` }}
+                      ></div>
+                    </div>
+                  </div>
+
+                  <div className="p-4 border rounded-lg">
+                    <h4 className="font-semibold text-sm text-gray-700">Storage</h4>
+                    <div className="text-2xl font-bold text-gray-900">
+                      {Math.round(usage.storageUsedMB / 1024 * 100) / 100}GB / {SUBSCRIPTION_LIMITS[settings.subscription_tier].documentStorageLimitGB}GB
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
+                      <div
+                        className="bg-blue-600 h-2 rounded-full"
+                        style={{ width: `${SubscriptionService.calculateUsagePercentage(usage.storageUsedMB / 1024, SUBSCRIPTION_LIMITS[settings.subscription_tier].documentStorageLimitGB)}%` }}
+                      ></div>
+                    </div>
+                  </div>
+                </div>
               </CardContent>
             </Card>
+
+            {/* Upgrade Options */}
+            {settings.subscription_tier !== 'premium' && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Upgrade Your Plan</CardTitle>
+                  <CardDescription>
+                    Unlock more features and higher limits
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {(Object.keys(SUBSCRIPTION_PRICING) as SubscriptionTier[]).map((tier) => {
+                      const isCurrentTier = tier === settings.subscription_tier
+                      const isPremiumTier = tier === 'premium'
+                      const pricing = SUBSCRIPTION_PRICING[tier]
+                      const limits = SUBSCRIPTION_LIMITS[tier]
+                      const features = getSubscriptionFeatures(tier)
+
+                      return (
+                        <div
+                          key={tier}
+                          className={`p-6 border rounded-lg relative ${
+                            isCurrentTier ? 'border-green-500 bg-green-50' :
+                            isPremiumTier ? 'border-orange-500 bg-gradient-to-br from-orange-50 to-yellow-50' :
+                            'border-gray-200 hover:border-gray-300'
+                          }`}
+                        >
+                          {pricing.popular && (
+                            <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                              <Badge className="bg-gradient-to-r from-green-600 to-orange-600 text-white">
+                                Most Popular
+                              </Badge>
+                            </div>
+                          )}
+
+                          <div className="text-center mb-4">
+                            <h3 className="text-xl font-semibold capitalize">{tier}</h3>
+                            <div className="text-3xl font-bold text-gray-900 mt-2">
+                              ${pricing.price}
+                              <span className="text-sm font-normal text-gray-500">/month</span>
+                            </div>
+                            <p className="text-sm text-gray-600 mt-1">{pricing.description}</p>
+                          </div>
+
+                          <ul className="space-y-2 mb-6">
+                            {features.slice(0, 5).map((feature, index) => (
+                              <li key={index} className="flex items-center space-x-2 text-sm">
+                                <span className="text-green-500">✓</span>
+                                <span>{feature}</span>
+                              </li>
+                            ))}
+                            {features.length > 5 && (
+                              <li className="text-sm text-gray-500">
+                                +{features.length - 5} more features
+                              </li>
+                            )}
+                          </ul>
+
+                          {isCurrentTier ? (
+                            <Button disabled className="w-full">
+                              Current Plan
+                            </Button>
+                          ) : (
+                            <Dialog>
+                              <DialogTrigger asChild>
+                                <Button
+                                  className={`w-full ${
+                                    isPremiumTier
+                                      ? 'bg-gradient-to-r from-orange-600 to-yellow-600 hover:from-orange-700 hover:to-yellow-700'
+                                      : 'bg-gradient-to-r from-green-600 to-orange-600 hover:from-green-700 hover:to-orange-700'
+                                  }`}
+                                >
+                                  Upgrade to {pricing.name}
+                                </Button>
+                              </DialogTrigger>
+                              <DialogContent>
+                                <DialogHeader>
+                                  <DialogTitle>Upgrade to {pricing.name} Plan</DialogTitle>
+                                  <DialogDescription>
+                                    Confirm your upgrade to unlock additional features and higher limits.
+                                  </DialogDescription>
+                                </DialogHeader>
+                                <div className="space-y-4">
+                                  <div className="p-4 bg-gray-50 rounded-lg">
+                                    <h4 className="font-semibold">What you'll get:</h4>
+                                    <ul className="mt-2 space-y-1">
+                                      {features.map((feature, index) => (
+                                        <li key={index} className="flex items-center space-x-2 text-sm">
+                                          <span className="text-green-500">✓</span>
+                                          <span>{feature}</span>
+                                        </li>
+                                      ))}
+                                    </ul>
+                                  </div>
+                                  <div className="flex justify-between text-lg font-semibold">
+                                    <span>Monthly Cost:</span>
+                                    <span>${pricing.price}/month</span>
+                                  </div>
+                                  <div className="flex gap-3">
+                                    <Button
+                                      onClick={() => handleUpgrade(tier)}
+                                      disabled={upgrading}
+                                      className="flex-1 bg-gradient-to-r from-green-600 to-orange-600 hover:from-green-700 hover:to-orange-700"
+                                    >
+                                      {upgrading ? 'Upgrading...' : `Upgrade Now`}
+                                    </Button>
+                                  </div>
+                                </div>
+                              </DialogContent>
+                            </Dialog>
+                          )}
+                        </div>
+                      )
+                    })}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
           </TabsContent>
         </Tabs>
 

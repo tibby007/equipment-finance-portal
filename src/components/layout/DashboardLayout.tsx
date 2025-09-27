@@ -52,7 +52,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
     )
   }
 
-  if (!authUser) {
+  if (!authUser && !loading) {
     return null
   }
 
@@ -122,10 +122,10 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
     },
   ]
 
-  const menuItems = authUser.userType === 'broker' ? brokerMenuItems : vendorMenuItems
+  const menuItems = authUser?.userType === 'broker' ? brokerMenuItems : vendorMenuItems
 
   // Get branded company name and colors
-  const companyName = (authUser.userType === 'broker' && branding?.company_name)
+  const companyName = (authUser?.userType === 'broker' && branding?.company_name)
     ? branding.company_name
     : 'VendorHub OS'
 
@@ -182,20 +182,20 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                 <Button variant="ghost" className="w-full justify-start gap-2">
                   <Avatar className="h-6 w-6">
                     <AvatarFallback className="text-xs">
-                      {authUser.profile.company_name?.charAt(0) || 
-                       (authUser.userType === 'vendor' && 
-                        (authUser.profile as { first_name?: string }).first_name?.charAt(0)) || 
+                      {authUser?.profile.company_name?.charAt(0) ||
+                       (authUser?.userType === 'vendor' &&
+                        (authUser?.profile as { first_name?: string }).first_name?.charAt(0)) ||
                        'U'}
                     </AvatarFallback>
                   </Avatar>
                   <div className="flex flex-col items-start text-sm">
                     <span className="font-medium">
-                      {authUser.userType === 'broker' 
-                        ? authUser.profile.company_name 
-                        : `${(authUser.profile as { first_name: string; last_name: string }).first_name} ${(authUser.profile as { first_name: string; last_name: string }).last_name}`}
+                      {authUser?.userType === 'broker'
+                        ? authUser?.profile.company_name
+                        : `${(authUser?.profile as { first_name: string; last_name: string }).first_name} ${(authUser?.profile as { first_name: string; last_name: string }).last_name}`}
                     </span>
                     <span className="text-xs text-muted-foreground capitalize">
-                      {authUser.userType}
+                      {authUser?.userType}
                     </span>
                   </div>
                 </Button>
@@ -206,7 +206,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                 <DropdownMenuItem onClick={(e) => e.preventDefault()}>
                   Profile Settings (Coming Soon)
                 </DropdownMenuItem>
-                {authUser.userType === 'broker' && (
+                {authUser?.userType === 'broker' && (
                   <DropdownMenuItem onClick={(e) => e.preventDefault()}>
                     Billing & Subscription (Coming Soon)
                   </DropdownMenuItem>
@@ -226,7 +226,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
               <div className="flex items-center gap-4">
                 <SidebarTrigger />
                 <h1 className="text-2xl font-semibold">
-                  {authUser.userType === 'broker'
+                  {authUser?.userType === 'broker'
                     ? `${companyName} Dashboard`
                     : 'Vendor Dashboard'
                   }
@@ -234,9 +234,9 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
               </div>
               <div className="flex items-center gap-4">
                 <span className="text-sm text-gray-600">
-                  {authUser.userType === 'broker'
-                    ? authUser.profile.company_name
-                    : `${(authUser.profile as { first_name: string; last_name: string }).first_name} ${(authUser.profile as { first_name: string; last_name: string }).last_name}`}
+                  {authUser?.userType === 'broker'
+                    ? authUser?.profile.company_name
+                    : `${(authUser?.profile as { first_name: string; last_name: string }).first_name} ${(authUser?.profile as { first_name: string; last_name: string }).last_name}`}
                 </span>
                 <Button
                   variant="outline"
