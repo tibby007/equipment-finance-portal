@@ -172,6 +172,21 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                       </SidebarMenuButton>
                     </SidebarMenuItem>
                   ))}
+
+                  {/* Add Sign Out option for vendors */}
+                  {authUser?.userType === 'vendor' && (
+                    <SidebarMenuItem>
+                      <SidebarMenuButton asChild>
+                        <button
+                          onClick={handleSignOut}
+                          className="flex items-center gap-2 w-full text-left hover:text-red-600 transition-colors"
+                        >
+                          <span>🚪</span>
+                          Sign Out
+                        </button>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  )}
                 </SidebarMenu>
               </SidebarGroupContent>
             </SidebarGroup>
