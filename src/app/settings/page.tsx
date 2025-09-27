@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
+import { useBranding } from '@/contexts/BrandingContext'
 import { DashboardLayout } from '@/components/layout/DashboardLayout'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -35,6 +36,7 @@ interface BrokerSettings {
 
 export default function SettingsPage() {
   const { authUser, loading } = useAuth()
+  const { refreshBranding } = useBranding()
   const router = useRouter()
   const [settings, setSettings] = useState<BrokerSettings | null>(null)
   const [saving, setSaving] = useState(false)
@@ -103,6 +105,8 @@ export default function SettingsPage() {
 
       if (error) throw error
 
+      // Refresh branding context to apply changes immediately
+      await refreshBranding()
       alert('Settings saved successfully!')
     } catch (error) {
       console.error('Error saving settings:', error)

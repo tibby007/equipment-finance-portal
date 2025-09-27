@@ -1,6 +1,7 @@
 'use client'
 
 import { useAuth } from '@/contexts/AuthContext'
+import { useBranding } from '@/contexts/BrandingContext'
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import {
@@ -34,6 +35,7 @@ interface DashboardLayoutProps {
 
 export function DashboardLayout({ children }: DashboardLayoutProps) {
   const { authUser, signOut, loading } = useAuth()
+  const { branding } = useBranding()
   const router = useRouter()
 
   useEffect(() => {
@@ -122,15 +124,42 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
 
   const menuItems = authUser.userType === 'broker' ? brokerMenuItems : vendorMenuItems
 
+  // Get branded company name and colors
+  const companyName = (authUser.userType === 'broker' && branding?.company_name)
+    ? branding.company_name
+    : 'VendorHub OS'
+
+  const primaryColor = branding?.primary_color || '#16a34a'
+  const secondaryColor = branding?.secondary_color || '#ea580c'
+
   return (
     <SidebarProvider>
       <div className="min-h-screen flex w-full">
+        {/* Inject custom CSS for branding */}
+        {branding?.custom_css && branding.subscription_tier === 'premium' && (
+          <style dangerouslySetInnerHTML={{ __html: branding.custom_css }} />
+        )}
+
         <Sidebar>
           <SidebarContent>
             <SidebarGroup>
-              <SidebarGroupLabel className="text-lg font-semibold bg-gradient-to-r from-green-600 to-orange-600 bg-clip-text text-transparent supports-[background-clip:text]:bg-clip-text supports-[background-clip:text]:text-transparent forced-colors:bg-none forced-colors:text-current">
-                VendorHub OS
-              </SidebarGroupLabel>
+              <div className="flex items-center space-x-3 px-2 py-1">
+                {branding?.company_logo_url && (
+                  <img
+                    src={branding.company_logo_url}
+                    alt={companyName}
+                    className="w-8 h-8 object-contain"
+                  />
+                )}
+                <SidebarGroupLabel
+                  className="text-lg font-semibold text-transparent bg-clip-text supports-[background-clip:text]:bg-clip-text supports-[background-clip:text]:text-transparent forced-colors:bg-none forced-colors:text-current"
+                  style={{
+                    backgroundImage: `linear-gradient(to right, ${primaryColor}, ${secondaryColor})`
+                  }}
+                >
+                  {companyName}
+                </SidebarGroupLabel>
+              </div>
               <SidebarGroupContent>
                 <SidebarMenu>
                   {menuItems.map((item) => (
@@ -197,7 +226,10 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
               <div className="flex items-center gap-4">
                 <SidebarTrigger />
                 <h1 className="text-2xl font-semibold">
-                  {authUser.userType === 'broker' ? 'Broker Dashboard' : 'Vendor Dashboard'}
+                  {authUser.userType === 'broker'
+                    ? `${companyName} Dashboard`
+                    : 'Vendor Dashboard'
+                  }
                 </h1>
               </div>
               <div className="flex items-center gap-4">
