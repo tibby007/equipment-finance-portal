@@ -32,14 +32,14 @@ export default function LoginPage() {
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
       <div className="max-w-md w-full space-y-8 p-8">
         <div className="text-center">
-          <Link href="/" className="text-2xl font-bold text-indigo-600">
-            EquipFinance
+          <Link href="/" className="text-2xl font-bold bg-gradient-to-r from-green-600 to-orange-600 bg-clip-text text-transparent">
+            VendorHub OS
           </Link>
           <h2 className="mt-6 text-3xl font-extrabold text-gray-900">
             Sign in to your account
           </h2>
           <p className="mt-2 text-sm text-gray-600">
-            New to EquipFinance?{' '}
+            New to VendorHub OS?{' '}
             <Link
               href="/signup"
               className="font-medium text-indigo-600 hover:text-indigo-500"

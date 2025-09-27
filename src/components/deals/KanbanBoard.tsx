@@ -31,12 +31,12 @@ interface KanbanColumn {
 }
 
 const DEAL_STAGES = [
-  { id: 'new', title: 'New Applications', color: 'bg-blue-500' },
-  { id: 'review', title: 'Under Review', color: 'bg-yellow-500' },
-  { id: 'documentation', title: 'Documentation', color: 'bg-purple-500' },
-  { id: 'approval', title: 'Pending Approval', color: 'bg-orange-500' },
-  { id: 'completed', title: 'Completed', color: 'bg-green-500' },
-  { id: 'rejected', title: 'Rejected', color: 'bg-red-500' },
+  { id: 'new', title: 'New Applications', color: 'bg-gradient-to-r from-blue-500 to-blue-600', textColor: 'text-blue-700', bgColor: 'bg-blue-50' },
+  { id: 'review', title: 'Under Review', color: 'bg-gradient-to-r from-yellow-500 to-orange-500', textColor: 'text-orange-700', bgColor: 'bg-orange-50' },
+  { id: 'documentation', title: 'Documentation', color: 'bg-gradient-to-r from-purple-500 to-purple-600', textColor: 'text-purple-700', bgColor: 'bg-purple-50' },
+  { id: 'approval', title: 'Pending Approval', color: 'bg-gradient-to-r from-orange-500 to-red-500', textColor: 'text-orange-700', bgColor: 'bg-orange-50' },
+  { id: 'completed', title: 'Completed', color: 'bg-gradient-to-r from-green-500 to-emerald-600', textColor: 'text-green-700', bgColor: 'bg-green-50' },
+  { id: 'rejected', title: 'Rejected', color: 'bg-gradient-to-r from-red-500 to-red-600', textColor: 'text-red-700', bgColor: 'bg-red-50' },
 ]
 
 interface DealCardProps {
@@ -60,10 +60,10 @@ function DealCard({ deal }: DealCardProps) {
 
   const getPrequalificationColor = (score: string | null) => {
     switch (score) {
-      case 'green': return 'bg-green-100 text-green-800'
-      case 'yellow': return 'bg-yellow-100 text-yellow-800'  
-      case 'red': return 'bg-red-100 text-red-800'
-      default: return 'bg-gray-100 text-gray-800'
+      case 'green': return 'bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow-md'
+      case 'yellow': return 'bg-gradient-to-r from-yellow-500 to-orange-500 text-white shadow-md'
+      case 'red': return 'bg-gradient-to-r from-red-500 to-red-600 text-white shadow-md'
+      default: return 'bg-gradient-to-r from-gray-400 to-gray-500 text-white shadow-md'
     }
   }
 
@@ -73,35 +73,35 @@ function DealCard({ deal }: DealCardProps) {
       style={style}
       {...attributes}
       {...listeners}
-      className={`cursor-grab active:cursor-grabbing ${isDragging ? 'opacity-50' : ''}`}
+      className={`cursor-grab active:cursor-grabbing ${isDragging ? 'opacity-50' : ''} hover:shadow-lg transition-all duration-200 border-l-4 border-l-gradient-to-b border-l-green-500 bg-white`}
     >
       <CardHeader className="pb-3">
         <div className="flex justify-between items-start">
-          <CardTitle className="text-base">{deal.customer_name}</CardTitle>
+          <CardTitle className="text-base font-bold text-gray-900">{deal.customer_name}</CardTitle>
           {deal.prequalification_score && (
-            <Badge className={getPrequalificationColor(deal.prequalification_score)}>
+            <Badge className={`${getPrequalificationColor(deal.prequalification_score)} font-semibold px-3 py-1`}>
               {deal.prequalification_score.toUpperCase()}
             </Badge>
           )}
         </div>
-        <CardDescription className="text-sm">
+        <CardDescription className="text-sm font-medium text-gray-600 bg-gradient-to-r from-green-50 to-orange-50 px-2 py-1 rounded-lg mt-2">
           {deal.equipment_type}
         </CardDescription>
       </CardHeader>
-      <CardContent>
-        <div className="space-y-2">
-          <div className="flex justify-between text-sm">
-            <span className="text-muted-foreground">Amount:</span>
-            <span className="font-medium">${Number(deal.deal_amount).toLocaleString()}</span>
+      <CardContent className="bg-gradient-to-br from-gray-50 to-white p-4 rounded-lg">
+        <div className="space-y-3">
+          <div className="flex justify-between text-sm bg-white p-2 rounded-lg shadow-sm">
+            <span className="text-gray-600 font-medium">Amount:</span>
+            <span className="font-bold text-green-700">${Number(deal.deal_amount).toLocaleString()}</span>
           </div>
-          <div className="flex justify-between text-sm">
-            <span className="text-muted-foreground">Created:</span>
-            <span>{new Date(deal.created_at).toLocaleDateString()}</span>
+          <div className="flex justify-between text-sm bg-white p-2 rounded-lg shadow-sm">
+            <span className="text-gray-600 font-medium">Created:</span>
+            <span className="text-gray-700">{new Date(deal.created_at).toLocaleDateString()}</span>
           </div>
           {deal.last_activity && (
-            <div className="flex justify-between text-sm">
-              <span className="text-muted-foreground">Last Activity:</span>
-              <span>{new Date(deal.last_activity).toLocaleDateString()}</span>
+            <div className="flex justify-between text-sm bg-white p-2 rounded-lg shadow-sm">
+              <span className="text-gray-600 font-medium">Last Activity:</span>
+              <span className="text-orange-600 font-medium">{new Date(deal.last_activity).toLocaleDateString()}</span>
             </div>
           )}
         </div>
@@ -119,11 +119,11 @@ function KanbanColumn({ column, onDealClick }: KanbanColumnProps) {
   const stage = DEAL_STAGES.find(s => s.id === column.id)
 
   return (
-    <div className="flex flex-col bg-gray-50 rounded-lg p-4 min-w-[300px] max-w-[300px]">
-      <div className="flex items-center gap-2 mb-4">
-        <div className={`w-3 h-3 rounded-full ${stage?.color}`} />
-        <h3 className="font-semibold text-sm">{column.title}</h3>
-        <Badge variant="secondary" className="ml-auto">
+    <div className={`flex flex-col rounded-xl p-4 min-w-[300px] max-w-[300px] shadow-lg border ${stage?.bgColor || 'bg-gray-50'} border-white`}>
+      <div className="flex items-center gap-3 mb-4">
+        <div className={`w-4 h-4 rounded-full ${stage?.color} shadow-md`} />
+        <h3 className={`font-bold text-sm ${stage?.textColor || 'text-gray-700'}`}>{column.title}</h3>
+        <Badge className={`ml-auto ${stage?.color} text-white border-0 shadow-md`}>
           {column.deals.length}
         </Badge>
       </div>
