@@ -85,6 +85,11 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
       href: '/analytics',
       icon: '📈',
     },
+    {
+      title: 'Settings',
+      href: '/settings',
+      icon: '⚙️',
+    },
   ]
 
   const vendorMenuItems = [
