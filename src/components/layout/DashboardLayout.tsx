@@ -188,11 +188,28 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
 
         <div className="flex-1 flex flex-col">
           <header className="border-b bg-background px-6 py-4">
-            <div className="flex items-center gap-4">
-              <SidebarTrigger />
-              <h1 className="text-2xl font-semibold">
-                {authUser.userType === 'broker' ? 'Broker Dashboard' : 'Vendor Dashboard'}
-              </h1>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <SidebarTrigger />
+                <h1 className="text-2xl font-semibold">
+                  {authUser.userType === 'broker' ? 'Broker Dashboard' : 'Vendor Dashboard'}
+                </h1>
+              </div>
+              <div className="flex items-center gap-4">
+                <span className="text-sm text-gray-600">
+                  {authUser.userType === 'broker'
+                    ? authUser.profile.company_name
+                    : `${(authUser.profile as { first_name: string; last_name: string }).first_name} ${(authUser.profile as { first_name: string; last_name: string }).last_name}`}
+                </span>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleSignOut}
+                  className="text-gray-700 hover:text-red-600 hover:border-red-300 transition-colors"
+                >
+                  Sign out
+                </Button>
+              </div>
             </div>
           </header>
           
