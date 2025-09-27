@@ -92,7 +92,7 @@ export function HeroSection() {
             className="relative"
           >
             {/* Main Dashboard Mockup */}
-            <div className="relative bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden">
+            <div className="relative bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden" role="img" aria-label="Dashboard interface preview showing vendor management features">
               {/* Browser Header */}
               <div className="bg-gray-100 px-4 py-3 border-b flex items-center space-x-2">
                 <div className="w-3 h-3 bg-red-500 rounded-full"></div>
@@ -108,7 +108,7 @@ export function HeroSection() {
                     <div className="text-white font-semibold text-sm mb-3">MANAGE VENDORS</div>
                     <div className="space-y-1">
                       {['Admin Panel', 'Plans & Pricing', 'Manage Vendors', 'Request for Quote', 'Quotation', 'Purchase Order', 'Contracts', 'Invoice', 'Products'].map((item, i) => (
-                        <div key={i} className="text-white text-xs py-1 px-2 rounded opacity-80 hover:opacity-100 cursor-pointer">
+                        <div key={i} className="text-white text-xs py-1 px-2 rounded opacity-80" aria-hidden="true">
                           {item}
                         </div>
                       ))}
@@ -119,7 +119,15 @@ export function HeroSection() {
                   <div className="col-span-3 bg-white rounded-lg p-4">
                     <div className="flex justify-between items-center mb-4">
                       <h3 className="font-bold text-gray-900">MANAGE VENDORS</h3>
-                      <Button size="sm" className="bg-blue-600 hover:bg-blue-700">Create Vendor</Button>
+                      <Button
+                        size="sm"
+                        className="bg-blue-600 cursor-default"
+                        disabled
+                        aria-hidden="true"
+                        tabIndex={-1}
+                      >
+                        Create Vendor
+                      </Button>
                     </div>
 
                     {/* Table Headers */}
