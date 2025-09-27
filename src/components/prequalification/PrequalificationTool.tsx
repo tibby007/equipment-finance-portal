@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
+import { useRouter } from 'next/navigation'
 import { zodResolver } from '@hookform/resolvers/zod'
 import * as z from 'zod'
 import { Button } from '@/components/ui/button'
@@ -34,6 +35,8 @@ interface PrequalificationResult {
 export function PrequalificationTool() {
   const [result, setResult] = useState<PrequalificationResult | null>(null)
   const [loading, setLoading] = useState(false)
+  const [formData, setFormData] = useState<PrequalificationFormData | null>(null)
+  const router = useRouter()
 
   const {
     register,
@@ -133,12 +136,29 @@ export function PrequalificationTool() {
 
   const onSubmit = async (data: PrequalificationFormData) => {
     setLoading(true)
+    setFormData(data)
     // Simulate processing time
     await new Promise(resolve => setTimeout(resolve, 1500))
 
     const score = calculateScore(data)
     setResult(score)
     setLoading(false)
+  }
+
+  const proceedToApplication = () => {
+    if (formData) {
+      const prequalData = {
+        customerName: formData.customerName,
+        equipmentType: formData.equipmentType,
+        dealAmount: formData.dealAmount,
+        ficoScore: formData.ficoScore,
+        annualRevenue: formData.annualRevenue,
+        yearsInBusiness: formData.yearsInBusiness
+      }
+
+      const encodedData = encodeURIComponent(JSON.stringify(prequalData))
+      router.push(`/application?prequalData=${encodedData}`)
+    }
   }
 
   const resetForm = () => {
@@ -186,6 +206,7 @@ export function PrequalificationTool() {
             {result.canProceed && (
               <Button
                 size="lg"
+                onClick={proceedToApplication}
                 className="bg-gradient-to-r from-green-600 to-orange-600 hover:from-green-700 hover:to-orange-700 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200"
               >
                 Proceed to Application
