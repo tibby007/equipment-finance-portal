@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState, useCallback } from 'react'
+import Link from 'next/link'
 import { useAuth } from '@/contexts/AuthContext'
 import { DashboardLayout } from '@/components/layout/DashboardLayout'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -157,63 +158,63 @@ export default function DashboardPage() {
             <CardContent className="space-y-2">
               {authUser?.userType === 'broker' ? (
                 <>
-                  <a 
-                    href="/vendors" 
+                  <Link
+                    href="/vendors"
                     className="block p-3 border rounded-lg hover:bg-gray-50 transition-colors"
                   >
                     <div className="font-medium">Manage Vendors</div>
                     <div className="text-sm text-muted-foreground">
                       Invite new vendors or view existing ones
                     </div>
-                  </a>
-                  <a 
-                    href="/deals" 
+                  </Link>
+                  <Link
+                    href="/deals"
                     className="block p-3 border rounded-lg hover:bg-gray-50 transition-colors"
                   >
                     <div className="font-medium">View Deal Pipeline</div>
                     <div className="text-sm text-muted-foreground">
                       Review and manage incoming deals
                     </div>
-                  </a>
-                  <a 
-                    href="/resources" 
+                  </Link>
+                  <Link
+                    href="/resources"
                     className="block p-3 border rounded-lg hover:bg-gray-50 transition-colors"
                   >
                     <div className="font-medium">Upload Resources</div>
                     <div className="text-sm text-muted-foreground">
                       Share guides and documents with vendors
                     </div>
-                  </a>
+                  </Link>
                 </>
               ) : (
                 <>
-                  <a 
-                    href="/application" 
+                  <Link
+                    href="/application"
                     className="block p-3 border rounded-lg hover:bg-gray-50 transition-colors"
                   >
                     <div className="font-medium">New Application</div>
                     <div className="text-sm text-muted-foreground">
                       Submit a new equipment finance application
                     </div>
-                  </a>
-                  <a 
-                    href="/deals" 
+                  </Link>
+                  <Link
+                    href="/deals"
                     className="block p-3 border rounded-lg hover:bg-gray-50 transition-colors"
                   >
                     <div className="font-medium">View My Deals</div>
                     <div className="text-sm text-muted-foreground">
                       Track status of your submitted applications
                     </div>
-                  </a>
-                  <a 
-                    href="/resources" 
+                  </Link>
+                  <Link
+                    href="/resources"
                     className="block p-3 border rounded-lg hover:bg-gray-50 transition-colors"
                   >
                     <div className="font-medium">Resources</div>
                     <div className="text-sm text-muted-foreground">
                       View guides and documentation
                     </div>
-                  </a>
+                  </Link>
                 </>
               )}
             </CardContent>
