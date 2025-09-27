@@ -32,11 +32,11 @@ interface KanbanColumn {
 
 const DEAL_STAGES = [
   { id: 'new', title: 'New Applications', color: 'bg-gradient-to-r from-blue-500 to-blue-600', textColor: 'text-blue-700', bgColor: 'bg-blue-50' },
+  { id: 'application', title: 'Application Submitted', color: 'bg-gradient-to-r from-indigo-500 to-indigo-600', textColor: 'text-indigo-700', bgColor: 'bg-indigo-50' },
   { id: 'review', title: 'Under Review', color: 'bg-gradient-to-r from-yellow-500 to-orange-500', textColor: 'text-orange-700', bgColor: 'bg-orange-50' },
-  { id: 'documentation', title: 'Documentation', color: 'bg-gradient-to-r from-purple-500 to-purple-600', textColor: 'text-purple-700', bgColor: 'bg-purple-50' },
-  { id: 'approval', title: 'Pending Approval', color: 'bg-gradient-to-r from-orange-500 to-red-500', textColor: 'text-orange-700', bgColor: 'bg-orange-50' },
-  { id: 'completed', title: 'Completed', color: 'bg-gradient-to-r from-green-500 to-emerald-600', textColor: 'text-green-700', bgColor: 'bg-green-50' },
-  { id: 'rejected', title: 'Rejected', color: 'bg-gradient-to-r from-red-500 to-red-600', textColor: 'text-red-700', bgColor: 'bg-red-50' },
+  { id: 'approved', title: 'Approved', color: 'bg-gradient-to-r from-orange-500 to-red-500', textColor: 'text-orange-700', bgColor: 'bg-orange-50' },
+  { id: 'funded', title: 'Funded', color: 'bg-gradient-to-r from-green-500 to-emerald-600', textColor: 'text-green-700', bgColor: 'bg-green-50' },
+  { id: 'declined', title: 'Declined', color: 'bg-gradient-to-r from-red-500 to-red-600', textColor: 'text-red-700', bgColor: 'bg-red-50' },
 ]
 
 interface DealCardProps {
@@ -87,6 +87,11 @@ function DealCard({ deal }: DealCardProps) {
         <CardDescription className="text-sm font-medium text-gray-600 bg-gradient-to-r from-green-50 to-orange-50 px-2 py-1 rounded-lg mt-2">
           {deal.equipment_type}
         </CardDescription>
+        {(deal as any).vendor && (
+          <div className="text-xs text-gray-500 mt-2 bg-gray-50 px-2 py-1 rounded">
+            <span className="font-medium">Vendor:</span> {(deal as any).vendor.company_name}
+          </div>
+        )}
       </CardHeader>
       <CardContent className="bg-gradient-to-br from-gray-50 to-white p-4 rounded-lg">
         <div className="space-y-3">
@@ -168,7 +173,10 @@ export function KanbanBoard({ onDealClick = () => {} }: KanbanBoardProps) {
     if (!authUser) return
 
     try {
-      let query = supabase.from('deals').select('*')
+      let query = supabase.from('deals').select(`
+        *,
+        vendor:vendors(company_name, first_name, last_name)
+      `)
 
       if (authUser.userType === 'broker') {
         query = query.eq('broker_id', authUser.id)
@@ -178,7 +186,12 @@ export function KanbanBoard({ onDealClick = () => {} }: KanbanBoardProps) {
 
       const { data: deals, error } = await query.order('created_at', { ascending: false })
 
-      if (error) throw error
+      if (error) {
+        console.error('Error loading deals:', error)
+        throw error
+      }
+
+      console.log(`[KanbanBoard] Loaded ${deals?.length || 0} deals for ${authUser.userType} ${authUser.id}`)
 
       // Group deals by stage
       const dealsByStage = DEAL_STAGES.reduce((acc, stage) => {
@@ -280,6 +293,37 @@ export function KanbanBoard({ onDealClick = () => {} }: KanbanBoardProps) {
     return (
       <div className="flex items-center justify-center py-8">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+      </div>
+    )
+  }
+
+  // Check if there are no deals at all
+  const totalDeals = columns.reduce((sum, col) => sum + col.deals.length, 0)
+
+  if (totalDeals === 0 && authUser) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <div className="text-center max-w-md">
+          <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <span className="text-gray-400 text-2xl">💼</span>
+          </div>
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">
+            {authUser.userType === 'broker' ? 'No Deals Yet' : 'No Deals Found'}
+          </h3>
+          <p className="text-gray-500 text-sm">
+            {authUser.userType === 'broker'
+              ? 'Your vendors haven\'t submitted any deals yet. Encourage them to start their applications!'
+              : 'You haven\'t submitted any deals yet. Click "New Application" to get started!'
+            }
+          </p>
+          {authUser.userType === 'vendor' && (
+            <div className="mt-4">
+              <a href="/application" className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-green-500 to-orange-500 text-white rounded-lg hover:from-green-600 hover:to-orange-600 transition-all">
+                Create New Application
+              </a>
+            </div>
+          )}
+        </div>
       </div>
     )
   }
