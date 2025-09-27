@@ -136,7 +136,7 @@ export function PricingSection() {
                 <CardHeader className="text-center pb-6">
                   <CardTitle className="text-2xl font-bold">{plan.name}</CardTitle>
                   <div className="mt-4">
-                    <span className="text-4xl font-bold text-gray-900 bg-gradient-to-r from-gray-900 to-gray-700 supports-[background-clip:text]:bg-clip-text supports-[background-clip:text]:text-transparent">
+                    <span className="text-4xl font-bold text-gray-900 bg-gradient-to-r from-gray-900 to-gray-700 supports-[background-clip:text]:bg-clip-text supports-[background-clip:text]:text-transparent forced-colors:bg-none forced-colors:text-current">
                       ${plan.price}
                     </span>
                     <span className="text-gray-600">/month</span>

@@ -57,7 +57,7 @@ export function LoginForm() {
         <div className="w-16 h-16 mx-auto bg-gradient-to-r from-green-600 to-orange-600 rounded-2xl flex items-center justify-center shadow-lg">
           <span className="text-white font-bold text-2xl">V</span>
         </div>
-        <CardTitle className="text-2xl font-bold text-green-600 bg-gradient-to-r from-green-600 to-orange-600 supports-[background-clip:text]:bg-clip-text supports-[background-clip:text]:text-transparent">Welcome Back</CardTitle>
+        <CardTitle className="text-2xl font-bold text-green-600 bg-gradient-to-r from-green-600 to-orange-600 supports-[background-clip:text]:bg-clip-text supports-[background-clip:text]:text-transparent forced-colors:bg-none forced-colors:text-current">Welcome Back</CardTitle>
         <CardDescription className="text-gray-600">
           Sign in to your VendorHub OS account
         </CardDescription>

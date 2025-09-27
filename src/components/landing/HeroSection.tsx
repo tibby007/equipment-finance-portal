@@ -28,7 +28,7 @@ export function HeroSection() {
             >
               <h1 className="text-4xl lg:text-5xl xl:text-6xl font-bold text-gray-900 leading-tight">
                 Streamlined Procurement Workflow with{' '}
-                <span className="text-green-600 bg-gradient-to-r from-green-600 to-orange-600 supports-[background-clip:text]:bg-clip-text supports-[background-clip:text]:text-transparent">
+                <span className="text-green-600 bg-gradient-to-r from-green-600 to-orange-600 supports-[background-clip:text]:bg-clip-text supports-[background-clip:text]:text-transparent forced-colors:bg-none forced-colors:text-current">
                   VendorHub OS
                 </span>
               </h1>
@@ -77,7 +77,7 @@ export function HeroSection() {
                 <div className="w-10 h-10 bg-gradient-to-r from-green-600 to-orange-600 rounded-lg flex items-center justify-center">
                   <span className="text-white font-bold text-lg">V</span>
                 </div>
-                <span className="text-2xl font-bold text-green-600 bg-gradient-to-r from-green-600 to-orange-600 supports-[background-clip:text]:bg-clip-text supports-[background-clip:text]:text-transparent">
+                <span className="text-2xl font-bold text-green-600 bg-gradient-to-r from-green-600 to-orange-600 supports-[background-clip:text]:bg-clip-text supports-[background-clip:text]:text-transparent forced-colors:bg-none forced-colors:text-current">
                   VendorHub OS
                 </span>
               </div>
