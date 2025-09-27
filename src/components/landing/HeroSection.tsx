@@ -25,10 +25,14 @@ export function HeroSection() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8 }}
+              className="space-y-4"
             >
-              <h1 className="text-4xl lg:text-5xl xl:text-6xl font-bold text-gray-900 leading-tight">
-                Equipment Finance Vendor Portal that streamlines the broker-vendor relationship, ensuring every deal, from prequalification to funding, flows seamlessly through your shared pipeline.
+              <h1 className="text-3xl lg:text-4xl xl:text-5xl font-bold text-gray-900 leading-tight">
+                Streamline Your Equipment Finance Workflow
               </h1>
+              <p className="text-lg lg:text-xl text-gray-600 leading-relaxed">
+                A powerful vendor portal that connects brokers and vendors, ensuring every deal flows seamlessly from prequalification to funding through your shared pipeline.
+              </p>
             </motion.div>
 
             <motion.div
