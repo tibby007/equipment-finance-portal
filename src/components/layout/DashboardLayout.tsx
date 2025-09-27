@@ -169,12 +169,12 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
               <DropdownMenuContent align="end" className="w-56">
                 <DropdownMenuLabel>My Account</DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>
-                  Profile Settings
+                <DropdownMenuItem onClick={(e) => e.preventDefault()}>
+                  Profile Settings (Coming Soon)
                 </DropdownMenuItem>
                 {authUser.userType === 'broker' && (
-                  <DropdownMenuItem>
-                    Billing & Subscription
+                  <DropdownMenuItem onClick={(e) => e.preventDefault()}>
+                    Billing & Subscription (Coming Soon)
                   </DropdownMenuItem>
                 )}
                 <DropdownMenuSeparator />
