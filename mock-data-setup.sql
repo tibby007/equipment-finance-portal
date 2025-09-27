@@ -90,7 +90,13 @@ INSERT INTO deals (
   'new',
   'green',
   '{"equipment_description": "New server infrastructure for data center expansion", "financing_amount": 125000, "term_months": 36}',
-  '[{"stage": "new", "timestamp": "' || (NOW() - INTERVAL '5 days')::text || '", "notes": "Initial inquiry received"}]',
+  jsonb_build_array(
+    jsonb_build_object(
+      'stage', 'new',
+      'timestamp', NOW() - INTERVAL '5 days',
+      'notes', 'Initial inquiry received'
+    )
+  ),
   NOW() - INTERVAL '1 day',
   NOW() - INTERVAL '5 days',
   NOW() - INTERVAL '1 day'
@@ -105,7 +111,13 @@ INSERT INTO deals (
   'new',
   'yellow',
   '{"equipment_description": "Fleet expansion with 3 delivery trucks", "financing_amount": 89000, "term_months": 48}',
-  '[{"stage": "new", "timestamp": "' || (NOW() - INTERVAL '3 days')::text || '", "notes": "Looking to expand delivery capabilities"}]',
+  jsonb_build_array(
+    jsonb_build_object(
+      'stage', 'new',
+      'timestamp', NOW() - INTERVAL '3 days',
+      'notes', 'Looking to expand delivery capabilities'
+    )
+  ),
   NOW(),
   NOW() - INTERVAL '3 days',
   NOW()
@@ -122,7 +134,14 @@ INSERT INTO deals (
   'application',
   'green',
   '{"equipment_description": "Heavy machinery package for large construction project", "financing_amount": 340000, "term_months": 60}',
-  '[{"stage": "new", "timestamp": "' || (NOW() - INTERVAL '12 days')::text || '"}, {"stage": "application", "timestamp": "' || (NOW() - INTERVAL '8 days')::text || '", "notes": "Application submitted with financial documents"}]',
+  jsonb_build_array(
+    jsonb_build_object('stage', 'new', 'timestamp', NOW() - INTERVAL '12 days'),
+    jsonb_build_object(
+      'stage', 'application',
+      'timestamp', NOW() - INTERVAL '8 days',
+      'notes', 'Application submitted with financial documents'
+    )
+  ),
   NOW() - INTERVAL '2 days',
   NOW() - INTERVAL '12 days',
   NOW() - INTERVAL '2 days'
@@ -137,7 +156,14 @@ INSERT INTO deals (
   'application',
   'green',
   '{"equipment_description": "Solar panel manufacturing line equipment", "financing_amount": 580000, "term_months": 72}',
-  '[{"stage": "new", "timestamp": "' || (NOW() - INTERVAL '8 days')::text || '"}, {"stage": "application", "timestamp": "' || (NOW() - INTERVAL '5 days')::text || '", "notes": "Strong financials, application under review"}]',
+  jsonb_build_array(
+    jsonb_build_object('stage', 'new', 'timestamp', NOW() - INTERVAL '8 days'),
+    jsonb_build_object(
+      'stage', 'application',
+      'timestamp', NOW() - INTERVAL '5 days',
+      'notes', 'Strong financials, application under review'
+    )
+  ),
   NOW() - INTERVAL '1 day',
   NOW() - INTERVAL '8 days',
   NOW() - INTERVAL '1 day'
@@ -154,7 +180,15 @@ INSERT INTO deals (
   'review',
   'green',
   '{"equipment_description": "Office technology upgrade package", "financing_amount": 75000, "term_months": 36}',
-  '[{"stage": "new", "timestamp": "' || (NOW() - INTERVAL '18 days')::text || '"}, {"stage": "application", "timestamp": "' || (NOW() - INTERVAL '10 days')::text || '"}, {"stage": "review", "timestamp": "' || (NOW() - INTERVAL '5 days')::text || '", "notes": "Credit review in progress"}]',
+  jsonb_build_array(
+    jsonb_build_object('stage', 'new', 'timestamp', NOW() - INTERVAL '18 days'),
+    jsonb_build_object('stage', 'application', 'timestamp', NOW() - INTERVAL '10 days'),
+    jsonb_build_object(
+      'stage', 'review',
+      'timestamp', NOW() - INTERVAL '5 days',
+      'notes', 'Credit review in progress'
+    )
+  ),
   NOW() - INTERVAL '3 days',
   NOW() - INTERVAL '18 days',
   NOW() - INTERVAL '3 days'
@@ -171,7 +205,16 @@ INSERT INTO deals (
   'approved',
   'green',
   '{"equipment_description": "Crane and construction equipment lease", "financing_amount": 220000, "term_months": 48}',
-  '[{"stage": "new", "timestamp": "' || (NOW() - INTERVAL '25 days')::text || '"}, {"stage": "application", "timestamp": "' || (NOW() - INTERVAL '15 days')::text || '"}, {"stage": "review", "timestamp": "' || (NOW() - INTERVAL '8 days')::text || '"}, {"stage": "approved", "timestamp": "' || (NOW() - INTERVAL '2 days')::text || '", "notes": "Financing approved, pending final documentation"}]',
+  jsonb_build_array(
+    jsonb_build_object('stage', 'new', 'timestamp', NOW() - INTERVAL '25 days'),
+    jsonb_build_object('stage', 'application', 'timestamp', NOW() - INTERVAL '15 days'),
+    jsonb_build_object('stage', 'review', 'timestamp', NOW() - INTERVAL '8 days'),
+    jsonb_build_object(
+      'stage', 'approved',
+      'timestamp', NOW() - INTERVAL '2 days',
+      'notes', 'Financing approved, pending final documentation'
+    )
+  ),
   NOW() - INTERVAL '1 day',
   NOW() - INTERVAL '25 days',
   NOW() - INTERVAL '1 day'
@@ -188,7 +231,17 @@ INSERT INTO deals (
   'funded',
   'green',
   '{"equipment_description": "Production line equipment financing", "financing_amount": 450000, "term_months": 60}',
-  '[{"stage": "new", "timestamp": "' || (NOW() - INTERVAL '35 days')::text || '"}, {"stage": "application", "timestamp": "' || (NOW() - INTERVAL '25 days')::text || '"}, {"stage": "review", "timestamp": "' || (NOW() - INTERVAL '15 days')::text || '"}, {"stage": "approved", "timestamp": "' || (NOW() - INTERVAL '8 days')::text || '"}, {"stage": "funded", "timestamp": "' || (NOW() - INTERVAL '5 days')::text || '", "notes": "Successfully funded! Equipment delivered."}]',
+  jsonb_build_array(
+    jsonb_build_object('stage', 'new', 'timestamp', NOW() - INTERVAL '35 days'),
+    jsonb_build_object('stage', 'application', 'timestamp', NOW() - INTERVAL '25 days'),
+    jsonb_build_object('stage', 'review', 'timestamp', NOW() - INTERVAL '15 days'),
+    jsonb_build_object('stage', 'approved', 'timestamp', NOW() - INTERVAL '8 days'),
+    jsonb_build_object(
+      'stage', 'funded',
+      'timestamp', NOW() - INTERVAL '5 days',
+      'notes', 'Successfully funded! Equipment delivered.'
+    )
+  ),
   NOW() - INTERVAL '5 days',
   NOW() - INTERVAL '35 days',
   NOW() - INTERVAL '5 days'
@@ -205,7 +258,16 @@ INSERT INTO deals (
   'declined',
   'red',
   '{"equipment_description": "Warehouse automation system", "financing_amount": 185000, "term_months": 48}',
-  '[{"stage": "new", "timestamp": "' || (NOW() - INTERVAL '40 days')::text || '"}, {"stage": "application", "timestamp": "' || (NOW() - INTERVAL '30 days')::text || '"}, {"stage": "review", "timestamp": "' || (NOW() - INTERVAL '20 days')::text || '"}, {"stage": "declined", "timestamp": "' || (NOW() - INTERVAL '10 days')::text || '", "notes": "Credit score below threshold, declined."}]',
+  jsonb_build_array(
+    jsonb_build_object('stage', 'new', 'timestamp', NOW() - INTERVAL '40 days'),
+    jsonb_build_object('stage', 'application', 'timestamp', NOW() - INTERVAL '30 days'),
+    jsonb_build_object('stage', 'review', 'timestamp', NOW() - INTERVAL '20 days'),
+    jsonb_build_object(
+      'stage', 'declined',
+      'timestamp', NOW() - INTERVAL '10 days',
+      'notes', 'Credit score below threshold, declined.'
+    )
+  ),
   NOW() - INTERVAL '10 days',
   NOW() - INTERVAL '40 days',
   NOW() - INTERVAL '10 days'
