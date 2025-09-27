@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 import { DashboardLayout } from '@/components/layout/DashboardLayout'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -23,11 +23,7 @@ export default function DashboardPage() {
   })
   const [loading, setLoading] = useState(true)
 
-  useEffect(() => {
-    loadDashboardStats()
-  }, [authUser])
-
-  const loadDashboardStats = async () => {
+  const loadDashboardStats = useCallback(async () => {
     if (!authUser) return
     try {
       let query = supabase.from('deals').select('current_stage, deal_amount')
@@ -62,7 +58,11 @@ export default function DashboardPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [authUser])
+
+  useEffect(() => {
+    loadDashboardStats()
+  }, [loadDashboardStats])
 
   return (
     <DashboardLayout>

@@ -19,14 +19,6 @@ export default function VendorsPage() {
   const [loading, setLoading] = useState(true)
   const [showInviteForm, setShowInviteForm] = useState(false)
 
-  useEffect(() => {
-    if (authUser?.userType !== 'broker') {
-      router.push('/dashboard')
-      return
-    }
-    loadVendors()
-  }, [authUser, router])
-
   const loadVendors = useCallback(async () => {
     if (!authUser) return
 
@@ -45,6 +37,14 @@ export default function VendorsPage() {
       setLoading(false)
     }
   }, [authUser])
+
+  useEffect(() => {
+    if (authUser?.userType !== 'broker') {
+      router.push('/dashboard')
+      return
+    }
+    loadVendors()
+  }, [authUser, router, loadVendors])
 
   const handleInviteSuccess = () => {
     setShowInviteForm(false)

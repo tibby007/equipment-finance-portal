@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import {
   DndContext,
   DragEndEvent,
@@ -164,11 +164,7 @@ export function KanbanBoard({ onDealClick = () => {} }: KanbanBoardProps) {
     })
   )
 
-  useEffect(() => {
-    loadDeals()
-  }, [authUser])
-
-  const loadDeals = async () => {
+  const loadDeals = useCallback(async () => {
     if (!authUser) return
 
     try {
@@ -202,7 +198,11 @@ export function KanbanBoard({ onDealClick = () => {} }: KanbanBoardProps) {
     } finally {
       setLoading(false)
     }
-  }
+  }, [authUser])
+
+  useEffect(() => {
+    loadDeals()
+  }, [loadDeals])
 
   const handleDragStart = (event: DragStartEvent) => {
     setActiveId(event.active.id as string)

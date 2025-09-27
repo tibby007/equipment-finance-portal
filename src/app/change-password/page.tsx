@@ -17,7 +17,7 @@ export default function ChangePasswordPage() {
       }
 
       // Only vendors who must change password should access this page
-      if (authUser.userType !== 'vendor' || !authUser.profile.must_change_password) {
+      if (authUser.userType !== 'vendor' || !('must_change_password' in authUser.profile) || !authUser.profile.must_change_password) {
         router.push('/dashboard')
         return
       }
@@ -32,7 +32,7 @@ export default function ChangePasswordPage() {
     )
   }
 
-  if (!authUser || authUser.userType !== 'vendor' || !authUser.profile.must_change_password) {
+  if (!authUser || authUser.userType !== 'vendor' || !('must_change_password' in authUser.profile) || !authUser.profile.must_change_password) {
     return null
   }
 
