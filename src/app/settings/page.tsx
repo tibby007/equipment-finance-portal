@@ -257,7 +257,7 @@ export default function SettingsPage() {
                   <div>
                     <CardTitle>Brand Customization</CardTitle>
                     <CardDescription>
-                      Customize your portal's appearance and branding
+                      Customize your portal&apos;s appearance and branding
                     </CardDescription>
                   </div>
                   <Badge variant={isFeatureAvailable('branding') ? 'default' : 'secondary'}>
@@ -576,7 +576,6 @@ export default function SettingsPage() {
                       const isCurrentTier = tier === settings.subscription_tier
                       const isPremiumTier = tier === 'premium'
                       const pricing = SUBSCRIPTION_PRICING[tier]
-                      const limits = SUBSCRIPTION_LIMITS[tier]
                       const features = getSubscriptionFeatures(tier)
 
                       return (
@@ -645,7 +644,7 @@ export default function SettingsPage() {
                                 </DialogHeader>
                                 <div className="space-y-4">
                                   <div className="p-4 bg-gray-50 rounded-lg">
-                                    <h4 className="font-semibold">What you'll get:</h4>
+                                    <h4 className="font-semibold">What you&apos;ll get:</h4>
                                     <ul className="mt-2 space-y-1">
                                       {features.map((feature, index) => (
                                         <li key={index} className="flex items-center space-x-2 text-sm">
