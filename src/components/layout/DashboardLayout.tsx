@@ -25,18 +25,32 @@ import {
   SidebarTrigger,
 } from '@/components/ui/sidebar'
 import { useRouter } from 'next/navigation'
-import { ReactNode } from 'react'
+import Link from 'next/link'
+import { ReactNode, useEffect } from 'react'
 
 interface DashboardLayoutProps {
   children: ReactNode
 }
 
 export function DashboardLayout({ children }: DashboardLayoutProps) {
-  const { authUser, signOut } = useAuth()
+  const { authUser, signOut, loading } = useAuth()
   const router = useRouter()
 
+  useEffect(() => {
+    if (!loading && !authUser) {
+      router.push('/')
+    }
+  }, [authUser, loading, router])
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900"></div>
+      </div>
+    )
+  }
+
   if (!authUser) {
-    router.push('/')
     return null
   }
 
@@ -104,18 +118,18 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
         <Sidebar>
           <SidebarContent>
             <SidebarGroup>
-              <SidebarGroupLabel className="text-lg font-semibold">
-                Equipment Finance Portal
+              <SidebarGroupLabel className="text-lg font-semibold bg-gradient-to-r from-green-600 to-orange-600 bg-clip-text text-transparent supports-[background-clip:text]:bg-clip-text supports-[background-clip:text]:text-transparent forced-colors:bg-none forced-colors:text-current">
+                VendorHub OS
               </SidebarGroupLabel>
               <SidebarGroupContent>
                 <SidebarMenu>
                   {menuItems.map((item) => (
                     <SidebarMenuItem key={item.href}>
                       <SidebarMenuButton asChild>
-                        <a href={item.href} className="flex items-center gap-2">
+                        <Link href={item.href} className="flex items-center gap-2">
                           <span>{item.icon}</span>
                           {item.title}
-                        </a>
+                        </Link>
                       </SidebarMenuButton>
                     </SidebarMenuItem>
                   ))}

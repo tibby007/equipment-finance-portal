@@ -5,13 +5,13 @@ import { Button } from '@/components/ui/button'
 
 export function HeroSection() {
   const features = [
-    'Vendor Quotation',
-    'Contract Management',
-    'Purchase Order Generation',
-    'Inventory Control',
-    'Payment Flexibility',
-    'Online Payment Integration',
-    'Invoicing Simplified'
+    '✓ Smart Prequalification Tool - Instant red/yellow/green scoring based on real underwriting criteria',
+    '✓ Shared Deal Pipeline - Both broker and vendor see real-time progress through your kanban board',
+    '✓ Streamlined Applications - Complete online applications with document upload in one place',
+    '✓ Two-Way Communication - Stay connected with notes and updates right in the deal cards',
+    '✓ Vendor Resource Hub - Brokers can share training materials and guidelines with their network',
+    '✓ Real-Time Dashboards - Track deal metrics and performance for both sides',
+    '✓ Tiered Vendor Management - Scale your vendor network with flexible subscription plans'
   ]
 
   return (
@@ -27,23 +27,25 @@ export function HeroSection() {
               transition={{ duration: 0.8 }}
             >
               <h1 className="text-4xl lg:text-5xl xl:text-6xl font-bold text-gray-900 leading-tight">
-                Streamlined Procurement Workflow with{' '}
-                <span className="text-green-600 bg-gradient-to-r from-green-600 to-orange-600 supports-[background-clip:text]:bg-clip-text supports-[background-clip:text]:text-transparent forced-colors:bg-none forced-colors:text-current">
-                  VendorHub OS
-                </span>
+                Equipment Finance Vendor Portal that streamlines the broker-vendor relationship, ensuring every deal, from prequalification to funding, flows seamlessly through your shared pipeline.
               </h1>
             </motion.div>
 
-            <motion.p
+            <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2, duration: 0.8 }}
-              className="text-lg lg:text-xl text-gray-600 leading-relaxed"
+              className="pt-4"
             >
-              Our Vendor Portal streamlines the procurement workflow, ensuring every step, from product
-              requests to invoicing, is optimized for efficiency. The portal offers an array of features to
-              facilitate a smooth procurement process
-            </motion.p>
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 bg-gradient-to-r from-green-600 to-orange-600 rounded-lg flex items-center justify-center">
+                  <span className="text-white font-bold text-lg">V</span>
+                </div>
+                <span className="text-2xl font-bold text-green-600 bg-gradient-to-r from-green-600 to-orange-600 supports-[background-clip:text]:bg-clip-text supports-[background-clip:text]:text-transparent forced-colors:bg-none forced-colors:text-current">
+                  VendorHub OS
+                </span>
+              </div>
+            </motion.div>
 
             {/* Feature List */}
             <motion.div
@@ -58,29 +60,33 @@ export function HeroSection() {
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.4 + index * 0.1, duration: 0.6 }}
-                  className="flex items-center space-x-3"
+                  className="text-gray-700 font-medium"
                 >
-                  <div className="w-2 h-2 bg-gradient-to-r from-green-500 to-orange-500 rounded-full"></div>
-                  <span className="text-gray-700 font-medium">{feature}</span>
+                  {feature}
                 </motion.div>
               ))}
             </motion.div>
 
-            {/* Logo */}
+            {/* CTA Buttons */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.8, duration: 0.8 }}
-              className="pt-4"
+              className="flex flex-col sm:flex-row gap-4 pt-6"
             >
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-gradient-to-r from-green-600 to-orange-600 rounded-lg flex items-center justify-center">
-                  <span className="text-white font-bold text-lg">V</span>
-                </div>
-                <span className="text-2xl font-bold text-green-600 bg-gradient-to-r from-green-600 to-orange-600 supports-[background-clip:text]:bg-clip-text supports-[background-clip:text]:text-transparent forced-colors:bg-none forced-colors:text-current">
-                  VendorHub OS
-                </span>
-              </div>
+              <Button
+                size="lg"
+                className="bg-gradient-to-r from-green-600 to-orange-600 hover:from-green-700 hover:to-orange-700 text-white font-semibold px-8 py-3 rounded-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200"
+              >
+                Get Started Free
+              </Button>
+              <Button
+                variant="outline"
+                size="lg"
+                className="border-2 border-gray-300 text-gray-700 hover:border-green-500 hover:text-green-600 px-8 py-3 rounded-lg transition-all duration-200"
+              >
+                Watch Demo
+              </Button>
             </motion.div>
           </div>
 
