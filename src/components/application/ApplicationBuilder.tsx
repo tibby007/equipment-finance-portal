@@ -9,7 +9,6 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Badge } from '@/components/ui/badge'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/contexts/AuthContext'
 import { DocumentUpload } from './DocumentUpload'
@@ -61,16 +60,16 @@ interface ApplicationBuilderProps {
     customerName: string
     equipmentType: string
     dealAmount: number
-    ficoScore?: number
-    annualRevenue?: number
-  }
+    ficoScore: number
+    annualRevenue: number
+    yearsInBusiness: number
+  } | null
 }
 
 export function ApplicationBuilder({ prequalData }: ApplicationBuilderProps) {
   const [currentStep, setCurrentStep] = useState(1)
   const [loading, setLoading] = useState(false)
   const [isDraft, setIsDraft] = useState(false)
-  const [uploadedFiles, setUploadedFiles] = useState<any[]>([])
   const { authUser } = useAuth()
 
   const {
@@ -151,7 +150,7 @@ export function ApplicationBuilder({ prequalData }: ApplicationBuilderProps) {
         .from('deals')
         .insert({
           vendor_id: authUser?.id,
-          broker_id: (authUser?.profile as any).broker_id,
+          broker_id: authUser?.userType === 'vendor' ? (authUser.profile as { broker_id?: string }).broker_id : undefined,
           customer_name: formData.businessLegalName || 'Draft Application',
           equipment_type: formData.equipmentType || 'TBD',
           deal_amount: formData.equipmentCost || 0,
@@ -180,7 +179,7 @@ export function ApplicationBuilder({ prequalData }: ApplicationBuilderProps) {
         .from('deals')
         .insert({
           vendor_id: authUser?.id,
-          broker_id: (authUser?.profile as any).broker_id,
+          broker_id: authUser?.userType === 'vendor' ? (authUser.profile as { broker_id?: string }).broker_id : undefined,
           customer_name: data.businessLegalName,
           equipment_type: data.equipmentType,
           deal_amount: data.equipmentCost,
@@ -305,7 +304,7 @@ export function ApplicationBuilder({ prequalData }: ApplicationBuilderProps) {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
                 <Label htmlFor="businessType">Business Type</Label>
-                <Select onValueChange={(value) => setValue('businessType', value as any)}>
+                <Select onValueChange={(value) => setValue('businessType', value as 'llc' | 'corporation' | 'partnership' | 'sole_proprietorship' | 'other')}>
                   <SelectTrigger>
                     <SelectValue placeholder="Select business type" />
                   </SelectTrigger>
@@ -530,7 +529,7 @@ export function ApplicationBuilder({ prequalData }: ApplicationBuilderProps) {
 
               <div className="space-y-2">
                 <Label htmlFor="bankAccountType">Account Type</Label>
-                <Select onValueChange={(value) => setValue('bankAccountType', value as any)}>
+                <Select onValueChange={(value) => setValue('bankAccountType', value as 'checking' | 'savings' | 'business_checking')}>
                   <SelectTrigger>
                     <SelectValue placeholder="Select account type" />
                   </SelectTrigger>
@@ -603,7 +602,7 @@ export function ApplicationBuilder({ prequalData }: ApplicationBuilderProps) {
 
               <div className="space-y-2">
                 <Label htmlFor="endOfTermOption">End of Term Option</Label>
-                <Select onValueChange={(value) => setValue('endOfTermOption', value as any)}>
+                <Select onValueChange={(value) => setValue('endOfTermOption', value as 'purchase' | 'fair_market_value' | 'return' | 'upgrade')}>
                   <SelectTrigger>
                     <SelectValue placeholder="Select option" />
                   </SelectTrigger>

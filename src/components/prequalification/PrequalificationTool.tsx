@@ -43,7 +43,6 @@ export function PrequalificationTool() {
     handleSubmit,
     formState: { errors },
     setValue,
-    watch,
   } = useForm<PrequalificationFormData>({
     resolver: zodResolver(prequalificationSchema),
   })

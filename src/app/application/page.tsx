@@ -1,16 +1,23 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
 import { DashboardLayout } from '@/components/layout/DashboardLayout'
 import { ApplicationBuilder } from '@/components/application/ApplicationBuilder'
 
-export default function ApplicationPage() {
+function ApplicationContent() {
   const { authUser, loading } = useAuth()
   const router = useRouter()
   const searchParams = useSearchParams()
-  const [prequalData, setPrequalData] = useState<any>(null)
+  const [prequalData, setPrequalData] = useState<{
+    customerName: string;
+    equipmentType: string;
+    dealAmount: number;
+    ficoScore: number;
+    annualRevenue: number;
+    yearsInBusiness: number;
+  } | null>(null)
 
   useEffect(() => {
     if (!loading) {
@@ -65,5 +72,17 @@ export default function ApplicationPage() {
         <ApplicationBuilder prequalData={prequalData} />
       </div>
     </DashboardLayout>
+  )
+}
+
+export default function ApplicationPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900"></div>
+      </div>
+    }>
+      <ApplicationContent />
+    </Suspense>
   )
 }

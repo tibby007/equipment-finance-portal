@@ -105,7 +105,7 @@ export function DocumentUpload({
         type: file.type,
         url: urlData.publicUrl,
         uploadedAt: new Date(),
-        category: category as any
+        category: category as 'invoice' | 'quote' | 'financial' | 'other'
       }
 
     } catch (error) {
@@ -114,7 +114,7 @@ export function DocumentUpload({
     }
   }
 
-  const handleFileUpload = async (fileList: FileList, category: string = 'other') => {
+  const handleFileUpload = useCallback(async (fileList: FileList, category: string = 'other') => {
     setUploading(true)
 
     const uploadPromises = Array.from(fileList).map(async (file) => {
@@ -144,7 +144,7 @@ export function DocumentUpload({
     } finally {
       setUploading(false)
     }
-  }
+  }, [files, onFilesChange, validateFile, uploadFileToSupabase])
 
   const handleDrag = useCallback((e: React.DragEvent) => {
     e.preventDefault()
@@ -164,7 +164,7 @@ export function DocumentUpload({
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
       handleFileUpload(e.dataTransfer.files)
     }
-  }, [files])
+  }, [handleFileUpload])
 
   const removeFile = async (fileId: string) => {
     const updatedFiles = files.filter(f => f.id !== fileId)
