@@ -13,11 +13,12 @@ import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Separator } from '@/components/ui/separator'
 import { supabase } from '@/lib/supabase'
+import { SubscriptionService, SUBSCRIPTION_PRICING, SUBSCRIPTION_LIMITS } from '@/lib/subscription'
 
 interface BrokerSettings {
   id?: string
   broker_id: string
-  subscription_tier: 'basic' | 'pro' | 'premium'
+  subscription_tier: 'starter' | 'professional' | 'premium'
   company_logo_url?: string
   company_name?: string
   tagline?: string
@@ -41,6 +42,7 @@ export default function SettingsPage() {
   const [settings, setSettings] = useState<BrokerSettings | null>(null)
   const [saving, setSaving] = useState(false)
   const [uploading, setUploading] = useState(false)
+  const [usage, setUsage] = useState({ currentVendorCount: 0, currentMonthDeals: 0, storageUsedMB: 0 })
 
   useEffect(() => {
     if (!loading) {
@@ -56,6 +58,7 @@ export default function SettingsPage() {
       }
 
       loadBrokerSettings()
+      loadUsageData()
     }
   }, [authUser, loading, router])
 
@@ -80,7 +83,7 @@ export default function SettingsPage() {
         // Create default settings
         const defaultSettings: BrokerSettings = {
           broker_id: authUser.id,
-          subscription_tier: 'basic',
+          subscription_tier: 'starter',
           company_name: authUser.profile.company_name || '',
           primary_color: '#16a34a',
           secondary_color: '#ea580c',
@@ -91,6 +94,17 @@ export default function SettingsPage() {
       }
     } catch (error) {
       console.error('Error loading broker settings:', error)
+    }
+  }
+
+  const loadUsageData = async () => {
+    if (!authUser) return
+
+    try {
+      const usageData = await SubscriptionService.getBrokerUsage(authUser.id)
+      setUsage(usageData)
+    } catch (error) {
+      console.error('Error loading usage data:', error)
     }
   }
 
@@ -148,17 +162,25 @@ export default function SettingsPage() {
     }
   }
 
-  const getSubscriptionFeatures = (tier: string) => {
-    switch (tier) {
-      case 'basic':
-        return ['Basic portal access', 'Standard support']
-      case 'pro':
-        return ['Custom branding', 'Logo upload', 'Custom colors', 'Priority support']
-      case 'premium':
-        return ['All Pro features', 'Custom domain', 'Custom CSS', 'White-label emails', 'Dedicated support']
-      default:
-        return []
-    }
+  const getSubscriptionFeatures = (tier: 'starter' | 'professional' | 'premium') => {
+    const features = SubscriptionService.getFeatures(tier)
+    const limits = SubscriptionService.getLimits(tier)
+
+    const featureList = [
+      `${SubscriptionService.formatLimit(limits.maxVendors)} vendors`,
+      `${SubscriptionService.formatLimit(limits.maxDealsPerMonth)} deals/month`,
+      `${limits.documentStorageLimitGB}GB storage`
+    ]
+
+    if (features.whiteLabelBranding) featureList.push('White-label branding')
+    if (features.customStages) featureList.push('Custom deal stages')
+    if (features.advancedAnalytics) featureList.push('Advanced analytics')
+    if (features.bulkOperations) featureList.push('Bulk operations')
+    if (features.apiAccess) featureList.push('API access')
+    if (features.customIntegrations) featureList.push('Custom integrations')
+    if (features.fullPipelineCustomization) featureList.push('Full pipeline customization')
+
+    return featureList
   }
 
   const isFeatureAvailable = (feature: string) => {

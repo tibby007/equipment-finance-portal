@@ -3,11 +3,12 @@
 import React, { createContext, useContext, useState, useEffect } from 'react'
 import { useAuth } from './AuthContext'
 import { supabase } from '@/lib/supabase'
+import { SubscriptionService, SubscriptionFeatures } from '@/lib/subscription'
 
 interface BrandingSettings {
   id?: string
   broker_id: string
-  subscription_tier: 'basic' | 'pro' | 'premium'
+  subscription_tier: 'starter' | 'professional' | 'premium'
   company_logo_url?: string
   company_name?: string
   tagline?: string
@@ -61,7 +62,7 @@ export function BrandingProvider({ children }: { children: React.ReactNode }) {
         // Create default branding for broker
         const defaultBranding: BrandingSettings = {
           broker_id: authUser.id,
-          subscription_tier: 'basic',
+          subscription_tier: 'starter',
           company_name: authUser.profile.company_name || 'VendorHub OS',
           primary_color: '#16a34a',
           secondary_color: '#ea580c',
@@ -83,18 +84,23 @@ export function BrandingProvider({ children }: { children: React.ReactNode }) {
 
   const isFeatureAvailable = (feature: string): boolean => {
     if (!branding) return false
-    const tier = branding.subscription_tier
 
-    const proFeatures = ['branding', 'logo', 'colors']
-    const premiumFeatures = ['domain', 'css', 'emails']
+    // Map legacy feature names to new subscription features
+    const featureMap: Record<string, keyof SubscriptionFeatures> = {
+      'branding': 'whiteLabelBranding',
+      'logo': 'whiteLabelBranding',
+      'colors': 'whiteLabelBranding',
+      'domain': 'fullPipelineCustomization',
+      'css': 'fullPipelineCustomization',
+      'emails': 'fullPipelineCustomization'
+    }
 
-    if (proFeatures.includes(feature)) {
-      return tier === 'pro' || tier === 'premium'
+    const subscriptionFeature = featureMap[feature]
+    if (subscriptionFeature) {
+      return SubscriptionService.isFeatureAvailable(branding.subscription_tier, subscriptionFeature)
     }
-    if (premiumFeatures.includes(feature)) {
-      return tier === 'premium'
-    }
-    return true
+
+    return true // Default to available for unmapped features
   }
 
   useEffect(() => {
