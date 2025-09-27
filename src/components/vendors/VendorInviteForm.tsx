@@ -49,31 +49,52 @@ export function VendorInviteForm({ onSuccess }: VendorInviteFormProps) {
   }
 
   const sendInvitationEmail = async (vendorData: InviteFormData, tempPassword: string) => {
-    // In a real application, you would use an email service like SendGrid, Resend, or n8n workflow
-    // For now, we'll just log the invitation details
-    console.log('Sending invitation email to:', vendorData.email)
-    console.log('Temporary password:', tempPassword)
-    
-    // TODO: Implement actual email sending via n8n webhook
-    // This would trigger an n8n workflow that sends the invitation email
-    /*
-    const emailData = {
+    // Mock email service - in production this would integrate with n8n workflow
+    const emailContent = {
       to: vendorData.email,
-      subject: `Invitation to ${authUser?.profile.company_name} Equipment Finance Portal`,
-      template: 'vendor-invitation',
-      variables: {
-        vendorName: `${vendorData.firstName} ${vendorData.lastName}`,
-        brokerCompany: authUser?.profile.company_name,
-        loginUrl: `${window.location.origin}/`,
-        email: vendorData.email,
-        temporaryPassword: tempPassword,
-      }
+      subject: `Welcome to ${authUser?.profile.company_name} VendorHub OS Network`,
+      vendorName: `${vendorData.firstName} ${vendorData.lastName}`,
+      brokerCompany: authUser?.profile.company_name,
+      loginUrl: `${window.location.origin}/login`,
+      email: vendorData.email,
+      temporaryPassword: tempPassword,
+      message: `
+🎉 Welcome to VendorHub OS!
+
+Hi ${vendorData.firstName},
+
+You've been invited to join ${authUser?.profile.company_name}'s vendor network on VendorHub OS!
+
+Your login credentials:
+📧 Email: ${vendorData.email}
+🔑 Temporary Password: ${tempPassword}
+
+🔗 Login at: ${window.location.origin}/login
+
+⚠️ IMPORTANT: You'll be required to change your password on first login for security.
+
+Best regards,
+The VendorHub OS Team
+      `
     }
-    
-    await fetch('/api/send-email', {
+
+    // In development, we'll show this in the browser console
+    console.log('📧 VENDOR INVITATION EMAIL:', emailContent)
+
+    // Store invitation in browser storage for demo purposes
+    const invitations = JSON.parse(localStorage.getItem('vendor_invitations') || '[]')
+    invitations.push({
+      ...emailContent,
+      sentAt: new Date().toISOString()
+    })
+    localStorage.setItem('vendor_invitations', JSON.stringify(invitations))
+
+    // TODO: Replace with actual n8n webhook in production
+    /*
+    await fetch('/api/webhooks/send-invitation', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(emailData)
+      body: JSON.stringify(emailContent)
     })
     */
   }
@@ -136,21 +157,29 @@ export function VendorInviteForm({ onSuccess }: VendorInviteFormProps) {
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Invite New Vendor</CardTitle>
-        <CardDescription>
-          Send an invitation to a vendor to join your network
-        </CardDescription>
+    <Card className="border-0 shadow-xl bg-gradient-to-br from-white to-gray-50">
+      <CardHeader className="space-y-3 pb-6">
+        <div className="flex items-center space-x-3">
+          <div className="w-12 h-12 bg-gradient-to-r from-green-600 to-orange-600 rounded-xl flex items-center justify-center shadow-lg">
+            <span className="text-white font-bold text-lg">+</span>
+          </div>
+          <div>
+            <CardTitle className="text-xl font-bold text-gray-900">Invite New Vendor</CardTitle>
+            <CardDescription className="text-gray-600">
+              Send an invitation to a vendor to join your VendorHub OS network
+            </CardDescription>
+          </div>
+        </div>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="firstName">First Name</Label>
+              <Label htmlFor="firstName" className="text-gray-700 font-medium">First Name</Label>
               <Input
                 id="firstName"
                 placeholder="Enter first name"
+                className="border-gray-300 focus:border-green-500 focus:ring-green-500 rounded-lg h-11"
                 {...register('firstName')}
               />
               {errors.firstName && (
@@ -159,10 +188,11 @@ export function VendorInviteForm({ onSuccess }: VendorInviteFormProps) {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="lastName">Last Name</Label>
+              <Label htmlFor="lastName" className="text-gray-700 font-medium">Last Name</Label>
               <Input
                 id="lastName"
                 placeholder="Enter last name"
+                className="border-gray-300 focus:border-orange-500 focus:ring-orange-500 rounded-lg h-11"
                 {...register('lastName')}
               />
               {errors.lastName && (
@@ -172,10 +202,11 @@ export function VendorInviteForm({ onSuccess }: VendorInviteFormProps) {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="companyName">Company Name</Label>
+            <Label htmlFor="companyName" className="text-gray-700 font-medium">Company Name</Label>
             <Input
               id="companyName"
               placeholder="Enter company name"
+              className="border-gray-300 focus:border-green-500 focus:ring-green-500 rounded-lg h-11"
               {...register('companyName')}
             />
             {errors.companyName && (
@@ -184,11 +215,12 @@ export function VendorInviteForm({ onSuccess }: VendorInviteFormProps) {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="email">Email Address</Label>
+            <Label htmlFor="email" className="text-gray-700 font-medium">Email Address</Label>
             <Input
               id="email"
               type="email"
               placeholder="Enter email address"
+              className="border-gray-300 focus:border-orange-500 focus:ring-orange-500 rounded-lg h-11"
               {...register('email')}
             />
             {errors.email && (
@@ -197,19 +229,39 @@ export function VendorInviteForm({ onSuccess }: VendorInviteFormProps) {
           </div>
 
           {error && (
-            <div className="p-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded">
-              {error}
+            <div className="p-4 text-sm text-red-700 bg-gradient-to-r from-red-50 to-red-100 border border-red-200 rounded-lg shadow-sm">
+              <div className="flex items-center space-x-2">
+                <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+                <span>{error}</span>
+              </div>
             </div>
           )}
 
           {success && (
-            <div className="p-3 text-sm text-green-600 bg-green-50 border border-green-200 rounded">
-              {success}
+            <div className="p-4 text-sm text-green-700 bg-gradient-to-r from-green-50 to-emerald-100 border border-green-200 rounded-lg shadow-sm">
+              <div className="flex items-center space-x-2">
+                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                <span>{success}</span>
+              </div>
             </div>
           )}
 
-          <Button type="submit" disabled={loading}>
-            {loading ? 'Sending Invitation...' : 'Send Invitation'}
+          <Button
+            type="submit"
+            disabled={loading}
+            className="w-full h-12 bg-gradient-to-r from-green-600 to-orange-600 hover:from-green-700 hover:to-orange-700 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-200"
+          >
+            {loading ? (
+              <div className="flex items-center space-x-2">
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                <span>Sending Invitation...</span>
+              </div>
+            ) : (
+              <div className="flex items-center space-x-2">
+                <span>📧</span>
+                <span>Send Invitation</span>
+              </div>
+            )}
           </Button>
         </form>
       </CardContent>

@@ -60,15 +60,16 @@ export default function VendorsPage() {
       <div className="space-y-8">
         <div className="flex justify-between items-center">
           <div>
-            <h2 className="text-3xl font-bold tracking-tight">Vendors</h2>
-            <p className="text-muted-foreground">
-              Manage your vendor network and send invitations
+            <h2 className="text-3xl font-bold tracking-tight text-gray-900">Vendor Network</h2>
+            <p className="text-gray-600 mt-2">
+              Manage your vendor network and send invitations through VendorHub OS
             </p>
           </div>
-          <Button 
+          <Button
             onClick={() => setShowInviteForm(!showInviteForm)}
+            className={showInviteForm ? "bg-gray-500 hover:bg-gray-600" : "bg-gradient-to-r from-green-600 to-orange-600 hover:from-green-700 hover:to-orange-700 shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200"}
           >
-            {showInviteForm ? 'Cancel' : 'Invite Vendor'}
+            {showInviteForm ? '✕ Cancel' : '➕ Invite Vendor'}
           </Button>
         </div>
 
@@ -77,15 +78,22 @@ export default function VendorsPage() {
         )}
 
         <div className="grid gap-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Your Vendors</CardTitle>
-              <CardDescription>
-                {vendors.length === 0 
-                  ? 'No vendors invited yet. Start by inviting your first vendor.'
-                  : `You have ${vendors.length} vendor${vendors.length === 1 ? '' : 's'} in your network.`
-                }
-              </CardDescription>
+          <Card className="border-0 shadow-lg bg-gradient-to-br from-white to-gray-50">
+            <CardHeader className="space-y-3">
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 bg-gradient-to-r from-green-600 to-orange-600 rounded-lg flex items-center justify-center">
+                  <span className="text-white font-bold text-lg">🏭</span>
+                </div>
+                <div>
+                  <CardTitle className="text-xl font-bold text-gray-900">Your Vendor Network</CardTitle>
+                  <CardDescription className="text-gray-600">
+                    {vendors.length === 0
+                      ? 'No vendors invited yet. Start by inviting your first vendor to VendorHub OS.'
+                      : `You have ${vendors.length} vendor${vendors.length === 1 ? '' : 's'} in your network.`
+                    }
+                  </CardDescription>
+                </div>
+              </div>
             </CardHeader>
             <CardContent>
               {loading ? (
@@ -102,13 +110,13 @@ export default function VendorsPage() {
               ) : (
                 <div className="space-y-4">
                   {vendors.map((vendor) => (
-                    <div 
+                    <div
                       key={vendor.id}
-                      className="flex items-center justify-between p-4 border rounded-lg"
+                      className="flex items-center justify-between p-6 bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md transition-all duration-200"
                     >
                       <div className="flex items-center gap-4">
-                        <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center">
-                          <span className="text-sm font-medium">
+                        <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-orange-500 rounded-full flex items-center justify-center shadow-md">
+                          <span className="text-white font-bold text-sm">
                             {vendor.first_name.charAt(0)}{vendor.last_name.charAt(0)}
                           </span>
                         </div>
@@ -125,12 +133,12 @@ export default function VendorsPage() {
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
-                        <div className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                          vendor.must_change_password 
-                            ? 'bg-yellow-100 text-yellow-800' 
-                            : 'bg-green-100 text-green-800'
+                        <div className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold shadow-sm ${
+                          vendor.must_change_password
+                            ? 'bg-gradient-to-r from-yellow-400 to-orange-500 text-white'
+                            : 'bg-gradient-to-r from-green-500 to-emerald-600 text-white'
                         }`}>
-                          {vendor.must_change_password ? 'Pending Setup' : 'Active'}
+                          {vendor.must_change_password ? '⏳ Pending Setup' : '✓ Active'}
                         </div>
                         <div className="text-xs text-muted-foreground">
                           Joined {new Date(vendor.created_at).toLocaleDateString()}
