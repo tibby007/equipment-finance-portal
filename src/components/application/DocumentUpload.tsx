@@ -195,9 +195,24 @@ export function DocumentUpload({
   }, [handleFileUpload])
 
   const removeFile = async (fileId: string) => {
-    const updatedFiles = files.filter(f => f.id !== fileId)
-    setFiles(updatedFiles)
-    onFilesChange?.(updatedFiles)
+    try {
+      const fileToRemove = files.find(f => f.id === fileId)
+      if (!fileToRemove) return
+
+      // Confirm deletion
+      const confirmed = window.confirm(`Are you sure you want to remove "${fileToRemove.name}"?`)
+      if (!confirmed) return
+
+      // Remove from state
+      const updatedFiles = files.filter(f => f.id !== fileId)
+      setFiles(updatedFiles)
+      onFilesChange?.(updatedFiles)
+
+      console.log(`File "${fileToRemove.name}" removed successfully`)
+    } catch (error) {
+      console.error('Error removing file:', error)
+      alert('Error removing file. Please try again.')
+    }
   }
 
   const getCategoryColor = (category: string) => {
