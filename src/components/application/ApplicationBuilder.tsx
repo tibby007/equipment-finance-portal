@@ -55,8 +55,16 @@ const applicationSchema = z.object({
 
   // Credit Authorization
   creditAuthConsent: z.boolean().refine(val => val === true, 'Credit authorization consent is required'),
-  lastFourSSN: z.string().length(4, 'Last 4 digits of SSN required'),
-  dateOfBirth: z.string().min(1, 'Date of birth is required'),
+  socialSecurityNumber: z.string()
+    .regex(/^\d{3}-\d{2}-\d{4}$/, 'SSN must be in format XXX-XX-XXXX')
+    .refine(val => val.replace(/\D/g, '').length === 9, 'Full 9-digit SSN is required'),
+  dateOfBirth: z.string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/, 'Date must be in YYYY-MM-DD format')
+    .refine(val => {
+      const date = new Date(val)
+      const age = (new Date().getTime() - date.getTime()) / (1000 * 60 * 60 * 24 * 365.25)
+      return age >= 18 && age <= 100
+    }, 'Must be between 18 and 100 years old'),
   creditAuthSignature: z.string().min(2, 'Electronic signature is required'),
 })
 
@@ -169,7 +177,7 @@ export function ApplicationBuilder({ prequalData }: ApplicationBuilderProps) {
       case 6:
         return [] // No form validation for document upload step
       case 7:
-        return ['creditAuthConsent', 'lastFourSSN', 'dateOfBirth', 'creditAuthSignature']
+        return ['creditAuthConsent', 'socialSecurityNumber', 'dateOfBirth', 'creditAuthSignature']
       default:
         return []
     }
@@ -715,17 +723,32 @@ export function ApplicationBuilder({ prequalData }: ApplicationBuilderProps) {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <Label htmlFor="lastFourSSN">Last 4 Digits of SSN *</Label>
+                <Label htmlFor="socialSecurityNumber">Social Security Number *</Label>
                 <Input
-                  id="lastFourSSN"
+                  id="socialSecurityNumber"
                   type="text"
-                  maxLength={4}
-                  placeholder="1234"
-                  {...register('lastFourSSN')}
+                  maxLength={11}
+                  placeholder="XXX-XX-XXXX"
+                  {...register('socialSecurityNumber')}
+                  onChange={(e) => {
+                    // Auto-format SSN with dashes
+                    let value = e.target.value.replace(/\D/g, '')
+                    if (value.length >= 6) {
+                      value = `${value.slice(0,3)}-${value.slice(3,5)}-${value.slice(5,9)}`
+                    } else if (value.length >= 4) {
+                      value = `${value.slice(0,3)}-${value.slice(3)}`
+                    }
+                    e.target.value = value
+                    // Trigger form validation
+                    register('socialSecurityNumber').onChange(e)
+                  }}
                 />
-                {errors.lastFourSSN && (
-                  <p className="text-sm text-red-600">{errors.lastFourSSN.message}</p>
+                {errors.socialSecurityNumber && (
+                  <p className="text-sm text-red-600">{errors.socialSecurityNumber.message}</p>
                 )}
+                <p className="text-xs text-gray-500">
+                  Required for credit authorization and verification
+                </p>
               </div>
 
               <div className="space-y-2">

@@ -282,21 +282,24 @@ export default function DealsPage() {
     doc.setFontSize(10)
     doc.text(`Credit Authorization: ${applicationData.creditAuthConsent ? 'AUTHORIZED' : 'NOT AUTHORIZED'}`, 20, 305)
     if (applicationData.creditAuthConsent) {
-      doc.text(`Authorized Date: ${applicationData.creditAuthDate || new Date().toLocaleDateString()}`, 20, 315)
-      doc.text('The applicant authorizes the broker and lenders to obtain credit reports and', 20, 325)
-      doc.text('verify employment, income, and other information for credit evaluation purposes.', 20, 335)
+      doc.text(`Social Security Number: ${applicationData.socialSecurityNumber || 'N/A'}`, 20, 315)
+      doc.text(`Date of Birth: ${applicationData.dateOfBirth || 'N/A'}`, 20, 325)
+      doc.text(`Authorized Date: ${applicationData.creditAuthDate || new Date().toLocaleDateString()}`, 20, 335)
+      doc.text(`Electronic Signature: ${applicationData.creditAuthSignature || 'N/A'}`, 20, 345)
+      doc.text('The applicant authorizes the broker and lenders to obtain credit reports and', 20, 355)
+      doc.text('verify employment, income, and other information for credit evaluation purposes.', 20, 365)
     }
 
     // Electronic Signature
     doc.setFontSize(16)
-    doc.text('Electronic Signature', 20, 355)
+    doc.text('Electronic Signature', 20, 385)
     doc.setFontSize(10)
-    doc.text(`Electronic Signature: ${applicationData.electronicSignature ? 'SIGNED ELECTRONICALLY' : 'NOT SIGNED'}`, 20, 370)
+    doc.text(`Electronic Signature: ${applicationData.electronicSignature ? 'SIGNED ELECTRONICALLY' : 'NOT SIGNED'}`, 20, 400)
     if (applicationData.electronicSignature) {
-      doc.text(`Signature Date: ${applicationData.signatureDate || new Date().toLocaleDateString()}`, 20, 380)
-      doc.text(`Signed by: ${applicationData.contactName || selectedDeal.customer_name}`, 20, 390)
-      doc.text('By providing electronic signature, the applicant agrees to the terms and', 20, 400)
-      doc.text('conditions of this equipment finance application.', 20, 410)
+      doc.text(`Signature Date: ${applicationData.signatureDate || new Date().toLocaleDateString()}`, 20, 410)
+      doc.text(`Signed by: ${applicationData.contactName || selectedDeal.customer_name}`, 20, 420)
+      doc.text('By providing electronic signature, the applicant agrees to the terms and', 20, 430)
+      doc.text('conditions of this equipment finance application.', 20, 440)
     }
 
     // Save the PDF
