@@ -180,9 +180,9 @@ export default function DealsPage() {
       // Update local state
       setSelectedDeal(prev => prev ? {
         ...prev,
-        customer_name: editData.customer_name,
-        equipment_type: editData.equipment_type,
-        deal_amount: editData.deal_amount,
+        customer_name: editData.customer_name || prev.customer_name,
+        equipment_type: editData.equipment_type || prev.equipment_type,
+        deal_amount: editData.deal_amount || prev.deal_amount,
       } : null)
 
       setShowEditMode(false)
