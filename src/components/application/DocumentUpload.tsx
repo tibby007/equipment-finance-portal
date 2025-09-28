@@ -177,19 +177,44 @@ export function DocumentUpload({
 
   const removeFile = async (fileId: string) => {
     try {
+      console.log('Attempting to remove file with ID:', fileId)
+      console.log('Current files:', files)
+
       const fileToRemove = files.find(f => f.id === fileId)
-      if (!fileToRemove) return
+      if (!fileToRemove) {
+        console.error('File not found with ID:', fileId)
+        alert('File not found. Please refresh and try again.')
+        return
+      }
 
       // Confirm deletion
       const confirmed = window.confirm(`Are you sure you want to remove "${fileToRemove.name}"?`)
-      if (!confirmed) return
+      if (!confirmed) {
+        console.log('User cancelled file deletion')
+        return
+      }
 
-      // Remove from state
+      // Remove from state with force update
       const updatedFiles = files.filter(f => f.id !== fileId)
-      setFiles(updatedFiles)
-      onFilesChange?.(updatedFiles)
+      console.log('Updated files after removal:', updatedFiles)
+
+      // Update state immediately
+      setFiles([...updatedFiles]) // Force new array reference
+
+      // Call parent callback
+      if (onFilesChange) {
+        onFilesChange([...updatedFiles])
+        console.log('Parent callback called with updated files')
+      }
 
       console.log(`File "${fileToRemove.name}" removed successfully`)
+
+      // Force re-render validation
+      setTimeout(() => {
+        const hasEquipmentInvoice = updatedFiles.some(file => file.category === 'invoice')
+        onValidationChange?.(hasEquipmentInvoice)
+      }, 100)
+
     } catch (error) {
       console.error('Error removing file:', error)
       alert('Error removing file. Please try again.')

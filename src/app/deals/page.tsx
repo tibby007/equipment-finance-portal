@@ -140,12 +140,16 @@ export default function DealsPage() {
       // Show success message
       alert(`Deal status successfully updated to "${newStatus.replace('_', ' ')}"!`)
 
+      // Reset the new status selection
+      setNewStatus('')
+
       // Note: The kanban board will refresh when the modal is closed due to the onDealClick handler
     } catch (error) {
       console.error('Error updating status:', error)
       alert('Error updating status. Please try again.')
     } finally {
       setLoading(false)
+      console.log('Status update completed, loading set to false')
     }
   }
 
@@ -271,6 +275,29 @@ export default function DealsPage() {
     doc.text(`Years in Business: ${applicationData.yearsInBusiness || 'N/A'}`, 20, 250)
     doc.text(`Credit Score: ${applicationData.creditScore || 'N/A'}`, 20, 260)
     doc.text(`Down Payment: $${applicationData.downPayment ? Number(applicationData.downPayment).toLocaleString() : 'N/A'}`, 20, 270)
+
+    // Credit Authorization
+    doc.setFontSize(16)
+    doc.text('Credit Authorization', 20, 290)
+    doc.setFontSize(10)
+    doc.text(`Credit Authorization: ${applicationData.creditAuthConsent ? 'AUTHORIZED' : 'NOT AUTHORIZED'}`, 20, 305)
+    if (applicationData.creditAuthConsent) {
+      doc.text(`Authorized Date: ${applicationData.creditAuthDate || new Date().toLocaleDateString()}`, 20, 315)
+      doc.text('The applicant authorizes the broker and lenders to obtain credit reports and', 20, 325)
+      doc.text('verify employment, income, and other information for credit evaluation purposes.', 20, 335)
+    }
+
+    // Electronic Signature
+    doc.setFontSize(16)
+    doc.text('Electronic Signature', 20, 355)
+    doc.setFontSize(10)
+    doc.text(`Electronic Signature: ${applicationData.electronicSignature ? 'SIGNED ELECTRONICALLY' : 'NOT SIGNED'}`, 20, 370)
+    if (applicationData.electronicSignature) {
+      doc.text(`Signature Date: ${applicationData.signatureDate || new Date().toLocaleDateString()}`, 20, 380)
+      doc.text(`Signed by: ${applicationData.contactName || selectedDeal.customer_name}`, 20, 390)
+      doc.text('By providing electronic signature, the applicant agrees to the terms and', 20, 400)
+      doc.text('conditions of this equipment finance application.', 20, 410)
+    }
 
     // Save the PDF
     doc.save(`application-${selectedDeal.customer_name.replace(/[^a-zA-Z0-9]/g, '-')}-${new Date().toISOString().split('T')[0]}.pdf`)
@@ -507,35 +534,54 @@ export default function DealsPage() {
                                   return
                                 }
 
-                                // Get actual Supabase storage URL
+                                if (doc.file_path && doc.file_path.startsWith('/documents/')) {
+                                  // Mock data files (demo mode)
+                                  alert(`Demo document: ${doc.file_name}\nPath: ${doc.file_path}\n\nThis is sample data. In production, this would open the actual uploaded document from Supabase storage.`)
+                                  return
+                                }
+
+                                // Clean the file path - remove leading slash if present
+                                let cleanPath = doc.file_path
+                                if (cleanPath.startsWith('/')) {
+                                  cleanPath = cleanPath.substring(1)
+                                }
+
+                                console.log('Attempting to access file path:', cleanPath)
+
+                                // Try to get public URL first
                                 const { data } = supabase.storage
                                   .from('documents')
-                                  .getPublicUrl(doc.file_path)
+                                  .getPublicUrl(cleanPath)
 
                                 if (data?.publicUrl) {
-                                  // Open document in new tab
+                                  console.log('Opening public URL:', data.publicUrl)
                                   window.open(data.publicUrl, '_blank')
-                                } else {
-                                  // Fallback: trigger download
-                                  const { data: downloadData, error } = await supabase.storage
-                                    .from('documents')
-                                    .download(doc.file_path)
-
-                                  if (error) throw error
-
-                                  // Create download link
-                                  const url = URL.createObjectURL(downloadData)
-                                  const a = document.createElement('a')
-                                  a.href = url
-                                  a.download = doc.file_name
-                                  document.body.appendChild(a)
-                                  a.click()
-                                  document.body.removeChild(a)
-                                  URL.revokeObjectURL(url)
+                                  return
                                 }
+
+                                // Fallback: try direct download
+                                const { data: downloadData, error } = await supabase.storage
+                                  .from('documents')
+                                  .download(cleanPath)
+
+                                if (error) {
+                                  console.error('Download error:', error)
+                                  throw new Error(`File not found in storage: ${error.message}`)
+                                }
+
+                                // Create download link
+                                const url = URL.createObjectURL(downloadData)
+                                const a = document.createElement('a')
+                                a.href = url
+                                a.download = doc.file_name
+                                document.body.appendChild(a)
+                                a.click()
+                                document.body.removeChild(a)
+                                URL.revokeObjectURL(url)
                               } catch (error) {
                                 console.error('Error viewing document:', error)
-                                alert(`Error opening document: ${doc.file_name}`)
+                                const errorMsg = error instanceof Error ? error.message : 'Unknown error'
+                                alert(`Error opening document: ${doc.file_name}\n\nDetails: ${errorMsg}\n\nPath: ${doc.file_path}`)
                               }
                             }}
                           >

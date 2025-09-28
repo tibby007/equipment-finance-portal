@@ -89,7 +89,10 @@ function DealCard({ deal }: DealCardProps) {
         </CardDescription>
         {(deal as Deal & { vendor?: { company_name: string; first_name: string; last_name: string } }).vendor && (
           <div className="text-xs text-gray-500 mt-2 bg-gray-50 px-2 py-1 rounded">
-            <span className="font-medium">Vendor:</span> {(deal as Deal & { vendor: { company_name: string } }).vendor.company_name}
+            <span className="font-medium">Vendor:</span> {(deal as Deal & { vendor: { company_name: string; first_name: string; last_name: string } }).vendor.company_name}
+            {(deal as Deal & { vendor: { first_name: string; last_name: string } }).vendor.first_name && (
+              <span> - {(deal as Deal & { vendor: { first_name: string; last_name: string } }).vendor.first_name} {(deal as Deal & { vendor: { first_name: string; last_name: string } }).vendor.last_name}</span>
+            )}
           </div>
         )}
       </CardHeader>
