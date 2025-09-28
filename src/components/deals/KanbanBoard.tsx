@@ -87,9 +87,9 @@ function DealCard({ deal }: DealCardProps) {
         <CardDescription className="text-sm font-medium text-gray-600 bg-gradient-to-r from-green-50 to-orange-50 px-2 py-1 rounded-lg mt-2">
           {deal.equipment_type}
         </CardDescription>
-        {(deal as any).vendor && (
+        {(deal as Deal & { vendor?: { company_name: string; first_name: string; last_name: string } }).vendor && (
           <div className="text-xs text-gray-500 mt-2 bg-gray-50 px-2 py-1 rounded">
-            <span className="font-medium">Vendor:</span> {(deal as any).vendor.company_name}
+            <span className="font-medium">Vendor:</span> {(deal as Deal & { vendor: { company_name: string } }).vendor.company_name}
           </div>
         )}
       </CardHeader>

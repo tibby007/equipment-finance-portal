@@ -6,23 +6,23 @@ import { DashboardLayout } from '@/components/layout/DashboardLayout'
 import { KanbanBoard } from '@/components/deals/KanbanBoard'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Badge } from '@/components/ui/badge'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { supabase } from '@/lib/supabase'
 import { Database } from '@/types/database'
 
 type Deal = Database['public']['Tables']['deals']['Row']
+type Note = Database['public']['Tables']['notes']['Row']
+type Document = Database['public']['Tables']['documents']['Row']
 
 export default function DealsPage() {
   const { authUser } = useAuth()
   const [selectedDeal, setSelectedDeal] = useState<Deal | null>(null)
   const [newNote, setNewNote] = useState('')
   const [newStatus, setNewStatus] = useState('')
-  const [dealNotes, setDealNotes] = useState<any[]>([])
-  const [dealDocuments, setDealDocuments] = useState<any[]>([])
+  const [dealNotes, setDealNotes] = useState<Note[]>([])
+  const [dealDocuments, setDealDocuments] = useState<Document[]>([])
   const [loading, setLoading] = useState(false)
 
   const handleDealClick = async (deal: Deal) => {
@@ -366,7 +366,7 @@ export default function DealsPage() {
                       </div>
                       {newStatus && newStatus !== selectedDeal.current_stage && (
                         <p className="text-xs text-gray-600 bg-white p-2 rounded">
-                          💡 This will move the deal from "{selectedDeal.current_stage.replace('_', ' ')}" to "{newStatus.replace('_', ' ')}" and add a note to the activity log.
+                          💡 This will move the deal from &quot;{selectedDeal.current_stage.replace('_', ' ')}&quot; to &quot;{newStatus.replace('_', ' ')}&quot; and add a note to the activity log.
                         </p>
                       )}
                     </div>
