@@ -93,7 +93,6 @@ export function DocumentUpload({
 
       // Upload to Supabase Storage - try documents bucket first, fallback to a default bucket
       let uploadResult
-      let bucketName = 'documents'
 
       try {
         uploadResult = await supabase.storage
@@ -102,7 +101,7 @@ export function DocumentUpload({
             cacheControl: '3600',
             upsert: false
           })
-      } catch (bucketError) {
+      } catch {
         console.warn('Documents bucket not found, creating fallback solution')
         // For now, simulate successful upload for demo purposes
         // In production, you would create the bucket or use an alternative storage solution
