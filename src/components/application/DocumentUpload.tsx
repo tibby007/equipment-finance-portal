@@ -62,96 +62,78 @@ export function DocumentUpload({
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
   }
 
-  const validateFile = (file: File): string | null => {
-    // Check file type
-    if (!Object.keys(allowedTypes).includes(file.type)) {
-      return `File type not allowed. Allowed types: ${Object.values(allowedTypes).join(', ')}`
-    }
-
-    // Check file size
-    const maxSizeBytes = maxFileSize * 1024 * 1024
-    if (file.size > maxSizeBytes) {
-      return `File size too large. Maximum size: ${maxFileSize}MB`
-    }
-
-    // Check total files
-    if (files.length >= maxFiles) {
-      return `Maximum ${maxFiles} files allowed`
-    }
-
-    return null
-  }
-
-  const uploadFileToSupabase = async (file: File, category: string): Promise<UploadedFile | null> => {
-    try {
-      if (!authUser) throw new Error('User not authenticated')
-
-      // Generate unique filename
-      const timestamp = Date.now()
-      const fileName = `${timestamp}-${file.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`
-      const filePath = `applications/${authUser.id}/${fileName}`
-
-      // Upload to Supabase Storage - try documents bucket first, fallback to a default bucket
-      let uploadResult
-
-      try {
-        uploadResult = await supabase.storage
-          .from('documents')
-          .upload(filePath, file, {
-            cacheControl: '3600',
-            upsert: false
-          })
-      } catch {
-        console.warn('Documents bucket not found, creating fallback solution')
-        // For now, simulate successful upload for demo purposes
-        // In production, you would create the bucket or use an alternative storage solution
-        return {
-          id: `${timestamp}`,
-          name: file.name,
-          size: file.size,
-          type: file.type,
-          url: `#file-${timestamp}`, // Placeholder URL
-          uploadedAt: new Date(),
-          category: category as 'invoice' | 'quote' | 'financial' | 'other'
-        }
-      }
-
-      const { data, error } = uploadResult
-
-      if (error) throw error
-
-      // Get public URL
-      const { data: urlData } = supabase.storage
-        .from('documents')
-        .getPublicUrl(data.path)
-
-      return {
-        id: `${timestamp}`,
-        name: file.name,
-        size: file.size,
-        type: file.type,
-        url: urlData.publicUrl,
-        uploadedAt: new Date(),
-        category: category as 'invoice' | 'quote' | 'financial' | 'other'
-      }
-
-    } catch (error) {
-      console.error('Upload error:', error)
-      return null
-    }
-  }
 
   const handleFileUpload = useCallback(async (fileList: FileList, category: string = 'other') => {
     setUploading(true)
 
     const uploadPromises = Array.from(fileList).map(async (file) => {
-      const validationError = validateFile(file)
-      if (validationError) {
-        alert(`${file.name}: ${validationError}`)
+      // Inline validation
+      if (!Object.keys(allowedTypes).includes(file.type)) {
+        alert(`${file.name}: File type not allowed. Allowed types: ${Object.values(allowedTypes).join(', ')}`)
         return null
       }
 
-      return await uploadFileToSupabase(file, category)
+      const maxSizeBytes = maxFileSize * 1024 * 1024
+      if (file.size > maxSizeBytes) {
+        alert(`${file.name}: File size too large. Maximum size: ${maxFileSize}MB`)
+        return null
+      }
+
+      if (files.length >= maxFiles) {
+        alert(`${file.name}: Maximum ${maxFiles} files allowed`)
+        return null
+      }
+
+      // Inline upload to Supabase
+      try {
+        if (!authUser) throw new Error('User not authenticated')
+
+        const timestamp = Date.now()
+        const fileName = `${timestamp}-${file.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`
+        const filePath = `applications/${authUser.id}/${fileName}`
+
+        let uploadResult
+        try {
+          uploadResult = await supabase.storage
+            .from('documents')
+            .upload(filePath, file, {
+              cacheControl: '3600',
+              upsert: false
+            })
+        } catch {
+          console.warn('Documents bucket not found, creating fallback solution')
+          return {
+            id: `${timestamp}`,
+            name: file.name,
+            size: file.size,
+            type: file.type,
+            url: `#file-${timestamp}`,
+            uploadedAt: new Date(),
+            category: category as 'invoice' | 'quote' | 'financial' | 'other'
+          }
+        }
+
+        const { data, error } = uploadResult
+        if (error) throw error
+
+        const { data: urlData } = supabase.storage
+          .from('documents')
+          .getPublicUrl(data.path)
+
+        return {
+          id: `${timestamp}`,
+          name: file.name,
+          size: file.size,
+          type: file.type,
+          url: urlData.publicUrl,
+          uploadedAt: new Date(),
+          category: category as 'invoice' | 'quote' | 'financial' | 'other'
+        }
+      } catch (error) {
+        console.error('Upload error:', error)
+        alert(`${file.name}: Upload failed`)
+        return null
+      }
     })
 
     try {
@@ -164,7 +146,6 @@ export function DocumentUpload({
 
       if (successfulUploads.length > 0) {
         console.log(`Successfully uploaded ${successfulUploads.length} file(s)`)
-        // Show a more user-friendly notification
       }
     } catch (error) {
       console.error('Upload failed:', error)
@@ -172,7 +153,7 @@ export function DocumentUpload({
     } finally {
       setUploading(false)
     }
-  }, [files, onFilesChange, validateFile, uploadFileToSupabase])
+  }, [files, onFilesChange, maxFiles, maxFileSize, authUser])
 
   const handleDrag = useCallback((e: React.DragEvent) => {
     e.preventDefault()

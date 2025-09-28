@@ -39,7 +39,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
   const router = useRouter()
 
   useEffect(() => {
-    if (!loading && !authUser) {
+    if (!loading && !authUser && typeof window !== 'undefined') {
       router.push('/')
     }
   }, [authUser, loading, router])
