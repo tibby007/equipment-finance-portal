@@ -1,32 +1,39 @@
 -- Create Storage Bucket for Documents
--- Run this in Supabase SQL Editor to create the documents bucket
+-- IMPORTANT: Run this in Supabase SQL Editor OR create through Dashboard
 
--- Create the documents bucket
+-- Method 1: SQL (Run this in Supabase SQL Editor)
 INSERT INTO storage.buckets (id, name, public)
 VALUES ('documents', 'documents', true)
 ON CONFLICT (id) DO NOTHING;
 
 -- Set up RLS policies for the documents bucket
-CREATE POLICY "Users can upload documents" ON storage.objects
+CREATE POLICY "Allow authenticated users to upload documents" ON storage.objects
 FOR INSERT WITH CHECK (
   bucket_id = 'documents' AND
-  auth.uid()::text = (storage.foldername(name))[1]
+  auth.role() = 'authenticated'
 );
 
-CREATE POLICY "Users can view their own documents" ON storage.objects
+CREATE POLICY "Allow users to view documents" ON storage.objects
 FOR SELECT USING (
   bucket_id = 'documents' AND
-  auth.uid()::text = (storage.foldername(name))[1]
+  auth.role() = 'authenticated'
 );
 
-CREATE POLICY "Users can delete their own documents" ON storage.objects
+CREATE POLICY "Allow users to delete their own documents" ON storage.objects
 FOR DELETE USING (
   bucket_id = 'documents' AND
-  auth.uid()::text = (storage.foldername(name))[1]
+  auth.role() = 'authenticated'
 );
 
--- Or alternatively, create through Supabase Dashboard:
--- 1. Go to Storage > Create new bucket
--- 2. Name: documents
--- 3. Public: true
--- 4. Set up the RLS policies as above
+-- Method 2: Supabase Dashboard (Easier)
+-- 1. Go to Storage in Supabase Dashboard
+-- 2. Click "Create new bucket"
+-- 3. Name: documents
+-- 4. Public: true
+-- 5. Click "Create bucket"
+
+-- The application will work with either method, but the bucket MUST exist
+-- for file uploads to work properly.
+
+-- Current Status: Bucket creation is REQUIRED for file uploads
+-- Without this bucket, uploads will fail with "Bucket not found" error

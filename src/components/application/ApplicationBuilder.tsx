@@ -94,16 +94,31 @@ export function ApplicationBuilder({ prequalData }: ApplicationBuilderProps) {
   } = useForm<ApplicationFormData>({
     resolver: zodResolver(applicationSchema),
     defaultValues: {
+      // Equipment Details - Step 1
       equipmentType: prequalData?.equipmentType || '',
       equipmentCost: prequalData?.dealAmount || 0,
-      annualRevenue: prequalData?.annualRevenue || 0,
-      creditScore: prequalData?.ficoScore || undefined,
+      equipmentCondition: 'new',
+
+      // Business Information - Step 2
       businessLegalName: prequalData?.customerName || '',
       yearsInBusiness: prequalData?.yearsInBusiness || 0,
-      equipmentCondition: 'new',
       businessType: 'llc',
+
+      // Financial Information - Step 4
+      annualRevenue: prequalData?.annualRevenue || 0,
+      creditScore: prequalData?.ficoScore || undefined,
       bankAccountType: 'business_checking',
+
+      // Deal Structure - Step 5
       endOfTermOption: 'purchase',
+
+      // Clear placeholders to prevent data bleeding
+      salespersonName: '',
+      industryType: '',
+      contactName: '',
+      businessCity: '',
+      businessState: '',
+      downPayment: 0,
     },
   })
 
