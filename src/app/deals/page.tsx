@@ -11,6 +11,7 @@ import { Badge } from '@/components/ui/badge'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { supabase } from '@/lib/supabase'
 import { Database } from '@/types/database'
+import jsPDF from 'jspdf'
 
 type Deal = Database['public']['Tables']['deals']['Row']
 type Note = Database['public']['Tables']['notes']['Row']
@@ -24,6 +25,8 @@ export default function DealsPage() {
   const [dealNotes, setDealNotes] = useState<Note[]>([])
   const [dealDocuments, setDealDocuments] = useState<Document[]>([])
   const [loading, setLoading] = useState(false)
+  const [showEditMode, setShowEditMode] = useState(false)
+  const [editData, setEditData] = useState<any>({})
 
   const handleDealClick = async (deal: Deal) => {
     setSelectedDeal(deal)
@@ -37,6 +40,8 @@ export default function DealsPage() {
     setNewNote('')
     setDealNotes([])
     setDealDocuments([])
+    setShowEditMode(false)
+    setEditData({})
   }
 
   const loadDealNotes = async (dealId: string) => {
@@ -140,6 +145,133 @@ export default function DealsPage() {
     }
   }
 
+  const handleEditDeal = () => {
+    if (!selectedDeal) return
+    setEditData({
+      customer_name: selectedDeal.customer_name,
+      equipment_type: selectedDeal.equipment_type,
+      deal_amount: selectedDeal.deal_amount,
+    })
+    setShowEditMode(true)
+  }
+
+  const handleSaveEdit = async () => {
+    if (!selectedDeal || !authUser || authUser.userType !== 'broker') return
+
+    setLoading(true)
+    try {
+      const { error } = await supabase
+        .from('deals')
+        .update({
+          customer_name: editData.customer_name,
+          equipment_type: editData.equipment_type,
+          deal_amount: editData.deal_amount,
+          updated_at: new Date().toISOString(),
+          last_activity: new Date().toISOString()
+        })
+        .eq('id', selectedDeal.id)
+
+      if (error) throw error
+
+      // Update local state
+      setSelectedDeal(prev => prev ? {
+        ...prev,
+        customer_name: editData.customer_name,
+        equipment_type: editData.equipment_type,
+        deal_amount: editData.deal_amount,
+      } : null)
+
+      setShowEditMode(false)
+      alert('Deal updated successfully!')
+    } catch (error) {
+      console.error('Error updating deal:', error)
+      alert('Error updating deal. Please try again.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleDeleteDeal = async () => {
+    if (!selectedDeal || !authUser || authUser.userType !== 'broker') return
+
+    const confirmed = confirm(`Are you sure you want to delete the deal for ${selectedDeal.customer_name}? This action cannot be undone.`)
+    if (!confirmed) return
+
+    setLoading(true)
+    try {
+      // Delete related documents and notes first
+      await supabase.from('documents').delete().eq('deal_id', selectedDeal.id)
+      await supabase.from('notes').delete().eq('deal_id', selectedDeal.id)
+
+      // Delete the deal
+      const { error } = await supabase
+        .from('deals')
+        .delete()
+        .eq('id', selectedDeal.id)
+
+      if (error) throw error
+
+      handleCloseDealModal()
+      alert('Deal deleted successfully!')
+
+      // Refresh the page to update the kanban board
+      window.location.reload()
+    } catch (error) {
+      console.error('Error deleting deal:', error)
+      alert('Error deleting deal. Please try again.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const generatePDF = () => {
+    if (!selectedDeal) return
+
+    const doc = new jsPDF()
+    const applicationData = selectedDeal.application_data as any || {}
+
+    // Header
+    doc.setFontSize(20)
+    doc.text('Equipment Finance Application', 20, 20)
+
+    doc.setFontSize(12)
+    doc.text(`Application ID: ${selectedDeal.id}`, 20, 35)
+    doc.text(`Date: ${new Date().toLocaleDateString()}`, 20, 45)
+
+    // Customer Information
+    doc.setFontSize(16)
+    doc.text('Customer Information', 20, 65)
+    doc.setFontSize(10)
+    doc.text(`Business Name: ${applicationData.businessLegalName || selectedDeal.customer_name}`, 20, 80)
+    doc.text(`Contact Name: ${applicationData.contactName || 'N/A'}`, 20, 90)
+    doc.text(`Phone: ${applicationData.businessPhone || 'N/A'}`, 20, 100)
+    doc.text(`Email: ${applicationData.businessEmail || 'N/A'}`, 20, 110)
+    doc.text(`Address: ${applicationData.businessAddress || 'N/A'}`, 20, 120)
+    doc.text(`City: ${applicationData.businessCity || 'N/A'}, State: ${applicationData.businessState || 'N/A'}, ZIP: ${applicationData.businessZip || 'N/A'}`, 20, 130)
+
+    // Equipment Information
+    doc.setFontSize(16)
+    doc.text('Equipment Information', 20, 150)
+    doc.setFontSize(10)
+    doc.text(`Equipment Type: ${selectedDeal.equipment_type}`, 20, 165)
+    doc.text(`Equipment Description: ${applicationData.equipmentDescription || 'N/A'}`, 20, 175)
+    doc.text(`Condition: ${applicationData.equipmentCondition || 'N/A'}`, 20, 185)
+    doc.text(`Cost: $${Number(selectedDeal.deal_amount).toLocaleString()}`, 20, 195)
+    doc.text(`Salesperson: ${applicationData.salespersonName || 'N/A'}`, 20, 205)
+
+    // Financial Information
+    doc.setFontSize(16)
+    doc.text('Financial Information', 20, 225)
+    doc.setFontSize(10)
+    doc.text(`Annual Revenue: $${applicationData.annualRevenue ? Number(applicationData.annualRevenue).toLocaleString() : 'N/A'}`, 20, 240)
+    doc.text(`Years in Business: ${applicationData.yearsInBusiness || 'N/A'}`, 20, 250)
+    doc.text(`Credit Score: ${applicationData.creditScore || 'N/A'}`, 20, 260)
+    doc.text(`Down Payment: $${applicationData.downPayment ? Number(applicationData.downPayment).toLocaleString() : 'N/A'}`, 20, 270)
+
+    // Save the PDF
+    doc.save(`application-${selectedDeal.customer_name.replace(/[^a-zA-Z0-9]/g, '-')}-${new Date().toISOString().split('T')[0]}.pdf`)
+  }
+
   return (
     <DashboardLayout>
       <div className="space-y-8">
@@ -173,30 +305,94 @@ export default function DealsPage() {
                     <CardTitle className="text-xl">{selectedDeal.customer_name}</CardTitle>
                     <CardDescription>{selectedDeal.equipment_type}</CardDescription>
                   </div>
-                  <Button variant="outline" onClick={handleCloseDealModal}>
-                    ✕
-                  </Button>
+                  <div className="flex gap-2">
+                    {authUser?.userType === 'broker' && (
+                      <>
+                        <Button variant="outline" size="sm" onClick={generatePDF} className="text-green-600 hover:text-green-700">
+                          PDF
+                        </Button>
+                        <Button variant="outline" size="sm" onClick={handleEditDeal}>
+                          Edit
+                        </Button>
+                        <Button variant="outline" size="sm" onClick={handleDeleteDeal} className="text-red-600 hover:text-red-700">
+                          Delete
+                        </Button>
+                      </>
+                    )}
+                    <Button variant="outline" onClick={handleCloseDealModal}>
+                      ✕
+                    </Button>
+                  </div>
                 </div>
               </CardHeader>
               <CardContent className="space-y-6">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <h4 className="font-semibold text-sm text-muted-foreground mb-1">
-                      Deal Amount
-                    </h4>
-                    <p className="text-2xl font-bold">
-                      ${Number(selectedDeal.deal_amount).toLocaleString()}
-                    </p>
+                {showEditMode && authUser?.userType === 'broker' ? (
+                  <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                    <h3 className="text-lg font-semibold mb-4 text-blue-800">Edit Deal</h3>
+                    <div className="space-y-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Customer Name
+                        </label>
+                        <input
+                          type="text"
+                          value={editData.customer_name || ''}
+                          onChange={(e) => setEditData({...editData, customer_name: e.target.value})}
+                          className="w-full p-2 border border-gray-300 rounded-md"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Equipment Type
+                        </label>
+                        <input
+                          type="text"
+                          value={editData.equipment_type || ''}
+                          onChange={(e) => setEditData({...editData, equipment_type: e.target.value})}
+                          className="w-full p-2 border border-gray-300 rounded-md"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Deal Amount ($)
+                        </label>
+                        <input
+                          type="number"
+                          value={editData.deal_amount || ''}
+                          onChange={(e) => setEditData({...editData, deal_amount: parseFloat(e.target.value) || 0})}
+                          className="w-full p-2 border border-gray-300 rounded-md"
+                        />
+                      </div>
+                      <div className="flex gap-2">
+                        <Button onClick={handleSaveEdit} disabled={loading}>
+                          {loading ? 'Saving...' : 'Save Changes'}
+                        </Button>
+                        <Button variant="outline" onClick={() => setShowEditMode(false)}>
+                          Cancel
+                        </Button>
+                      </div>
+                    </div>
                   </div>
-                  <div>
-                    <h4 className="font-semibold text-sm text-muted-foreground mb-1">
-                      Current Stage
-                    </h4>
-                    <p className="text-lg font-medium capitalize">
-                      {selectedDeal.current_stage.replace('_', ' ')}
-                    </p>
+                ) : (
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <h4 className="font-semibold text-sm text-muted-foreground mb-1">
+                        Deal Amount
+                      </h4>
+                      <p className="text-2xl font-bold">
+                        ${Number(selectedDeal.deal_amount).toLocaleString()}
+                      </p>
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-sm text-muted-foreground mb-1">
+                        Current Stage
+                      </h4>
+                      <p className="text-lg font-medium capitalize">
+                        {selectedDeal.current_stage.replace('_', ' ')}
+                      </p>
+                    </div>
                   </div>
-                </div>
+                )}
 
                 {selectedDeal.prequalification_score && (
                   <div>
@@ -299,9 +495,44 @@ export default function DealsPage() {
                             variant="outline"
                             size="sm"
                             className="text-blue-600 hover:text-blue-800 hover:bg-blue-50"
-                            onClick={() => {
-                              // In a real app, this would download or open the file
-                              alert(`Would open/download: ${doc.file_name}`)
+                            onClick={async () => {
+                              try {
+                                if (doc.file_path && doc.file_path.startsWith('#file-')) {
+                                  // Fallback file (demo mode)
+                                  alert(`Demo file: ${doc.file_name}\nIn production, this would open the actual uploaded document.`)
+                                  return
+                                }
+
+                                // Get actual Supabase storage URL
+                                const { data } = supabase.storage
+                                  .from('documents')
+                                  .getPublicUrl(doc.file_path)
+
+                                if (data?.publicUrl) {
+                                  // Open document in new tab
+                                  window.open(data.publicUrl, '_blank')
+                                } else {
+                                  // Fallback: trigger download
+                                  const { data: downloadData, error } = await supabase.storage
+                                    .from('documents')
+                                    .download(doc.file_path)
+
+                                  if (error) throw error
+
+                                  // Create download link
+                                  const url = URL.createObjectURL(downloadData)
+                                  const a = document.createElement('a')
+                                  a.href = url
+                                  a.download = doc.file_name
+                                  document.body.appendChild(a)
+                                  a.click()
+                                  document.body.removeChild(a)
+                                  URL.revokeObjectURL(url)
+                                }
+                              } catch (error) {
+                                console.error('Error viewing document:', error)
+                                alert(`Error opening document: ${doc.file_name}`)
+                              }
                             }}
                           >
                             View

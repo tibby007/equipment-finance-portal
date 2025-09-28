@@ -52,6 +52,12 @@ const applicationSchema = z.object({
   desiredTerm: z.number().min(12).max(84, 'Term must be between 12-84 months'),
   monthlyBudget: z.number().min(1, 'Monthly budget is required'),
   endOfTermOption: z.enum(['purchase', 'return', 'upgrade', 'fair_market_value']),
+
+  // Credit Authorization
+  creditAuthConsent: z.boolean().refine(val => val === true, 'Credit authorization consent is required'),
+  lastFourSSN: z.string().length(4, 'Last 4 digits of SSN required'),
+  dateOfBirth: z.string().min(1, 'Date of birth is required'),
+  creditAuthSignature: z.string().min(2, 'Electronic signature is required'),
 })
 
 type ApplicationFormData = z.infer<typeof applicationSchema>
@@ -122,14 +128,15 @@ export function ApplicationBuilder({ prequalData }: ApplicationBuilderProps) {
     },
   })
 
-  const totalSteps = 6
+  const totalSteps = 7
   const stepTitles = [
     'Equipment Details',
     'Business Information',
     'Contact & Location',
     'Financial Information',
     'Deal Structure',
-    'Documents & Attachments'
+    'Documents & Attachments',
+    'Credit Authorization'
   ]
 
   const nextStep = async () => {
@@ -161,6 +168,8 @@ export function ApplicationBuilder({ prequalData }: ApplicationBuilderProps) {
         return ['downPayment', 'desiredTerm', 'monthlyBudget', 'endOfTermOption']
       case 6:
         return [] // No form validation for document upload step
+      case 7:
+        return ['creditAuthConsent', 'lastFourSSN', 'dateOfBirth', 'creditAuthSignature']
       default:
         return []
     }
@@ -683,6 +692,98 @@ export function ApplicationBuilder({ prequalData }: ApplicationBuilderProps) {
                 setDocumentsValid(isValid)
               }}
             />
+          </div>
+        )
+
+      case 7:
+        return (
+          <div className="space-y-6">
+            <div className="text-center space-y-2">
+              <h3 className="text-lg font-semibold text-gray-900">Credit Authorization</h3>
+              <p className="text-gray-600">
+                We need your authorization to pull your credit report for this application
+              </p>
+            </div>
+
+            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+              <h4 className="text-sm font-semibold text-yellow-800 mb-2">Important Notice</h4>
+              <p className="text-sm text-yellow-700">
+                By providing the information below and checking the consent box, you authorize us to obtain your credit report
+                from one or more consumer reporting agencies for the purpose of evaluating your equipment finance application.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <Label htmlFor="lastFourSSN">Last 4 Digits of SSN *</Label>
+                <Input
+                  id="lastFourSSN"
+                  type="text"
+                  maxLength={4}
+                  placeholder="1234"
+                  {...register('lastFourSSN')}
+                />
+                {errors.lastFourSSN && (
+                  <p className="text-sm text-red-600">{errors.lastFourSSN.message}</p>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="dateOfBirth">Date of Birth *</Label>
+                <Input
+                  id="dateOfBirth"
+                  type="date"
+                  {...register('dateOfBirth')}
+                />
+                {errors.dateOfBirth && (
+                  <p className="text-sm text-red-600">{errors.dateOfBirth.message}</p>
+                )}
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="creditAuthSignature">Electronic Signature *</Label>
+              <Input
+                id="creditAuthSignature"
+                placeholder="Type your full legal name to sign electronically"
+                {...register('creditAuthSignature')}
+              />
+              {errors.creditAuthSignature && (
+                <p className="text-sm text-red-600">{errors.creditAuthSignature.message}</p>
+              )}
+            </div>
+
+            <div className="space-y-4">
+              <div className="flex items-start space-x-3">
+                <input
+                  type="checkbox"
+                  id="creditAuthConsent"
+                  {...register('creditAuthConsent')}
+                  className="mt-1"
+                />
+                <div>
+                  <Label htmlFor="creditAuthConsent" className="text-sm font-medium">
+                    I authorize the credit pull *
+                  </Label>
+                  <p className="text-xs text-gray-600 mt-1">
+                    I hereby authorize the broker and/or lending partners to obtain my consumer credit report
+                    and use this information in connection with this equipment finance application. I understand
+                    that this may result in an inquiry being added to my credit report.
+                  </p>
+                </div>
+              </div>
+              {errors.creditAuthConsent && (
+                <p className="text-sm text-red-600">{errors.creditAuthConsent.message}</p>
+              )}
+            </div>
+
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+              <p className="text-sm text-blue-700">
+                <strong>Privacy Notice:</strong> Your personal information will be handled in accordance with
+                applicable privacy laws and will only be used for the purpose of processing your equipment
+                finance application.
+              </p>
+            </div>
           </div>
         )
 
