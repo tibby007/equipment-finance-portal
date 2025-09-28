@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -21,17 +21,25 @@ interface DocumentUploadProps {
   onFilesChange?: (files: UploadedFile[]) => void
   maxFiles?: number
   maxFileSize?: number // in MB
+  onValidationChange?: (isValid: boolean) => void
 }
 
 export function DocumentUpload({
   onFilesChange,
   maxFiles = 10,
-  maxFileSize = 10
+  maxFileSize = 10,
+  onValidationChange
 }: DocumentUploadProps) {
   const [files, setFiles] = useState<UploadedFile[]>([])
   const [uploading, setUploading] = useState(false)
   const [dragActive, setDragActive] = useState(false)
   const { authUser } = useAuth()
+
+  // Check if equipment invoice is uploaded
+  useEffect(() => {
+    const hasEquipmentInvoice = files.some(file => file.category === 'invoice')
+    onValidationChange?.(hasEquipmentInvoice)
+  }, [files, onValidationChange])
 
   // Allowed file types
   const allowedTypes = {
@@ -239,19 +247,19 @@ export function DocumentUpload({
     <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {renderUploadSection(
-          "Equipment Invoice/Quote",
-          "Upload the equipment invoice or quote from your vendor",
+          "Equipment Invoice/Quote *",
+          "Required: Upload the equipment invoice or quote from your vendor",
           "invoice"
         )}
         {renderUploadSection(
-          "Financial Documents",
+          "Financial Documents (Optional)",
           "Upload bank statements, tax returns, or financial statements",
           "financial"
         )}
       </div>
 
       {renderUploadSection(
-        "Additional Documents",
+        "Additional Documents (Optional)",
         "Upload any other supporting documents for your application",
         "other"
       )}

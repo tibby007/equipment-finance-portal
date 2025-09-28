@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import * as z from 'zod'
+import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -19,7 +20,7 @@ const applicationSchema = z.object({
   equipmentDescription: z.string().min(10, 'Please provide detailed equipment description'),
   equipmentCondition: z.enum(['new', 'used']),
   equipmentCost: z.number().min(1, 'Equipment cost is required'),
-  vendorCompany: z.string().min(2, 'Vendor company name is required'),
+  salespersonName: z.string().min(2, 'Salesperson name is required'),
 
   // Customer Business Information
   businessLegalName: z.string().min(2, 'Business legal name is required'),
@@ -70,7 +71,10 @@ export function ApplicationBuilder({ prequalData }: ApplicationBuilderProps) {
   const [currentStep, setCurrentStep] = useState(1)
   const [loading, setLoading] = useState(false)
   const [isDraft, setIsDraft] = useState(false)
+  const [uploadedFiles, setUploadedFiles] = useState<any[]>([])
+  const [documentsValid, setDocumentsValid] = useState(false)
   const { authUser } = useAuth()
+  const router = useRouter()
 
   const {
     register,
@@ -87,6 +91,7 @@ export function ApplicationBuilder({ prequalData }: ApplicationBuilderProps) {
       annualRevenue: prequalData?.annualRevenue || 0,
       creditScore: prequalData?.ficoScore || undefined,
       businessLegalName: prequalData?.customerName || '',
+      yearsInBusiness: prequalData?.yearsInBusiness || 0,
       equipmentCondition: 'new',
       businessType: 'llc',
       bankAccountType: 'business_checking',
@@ -122,7 +127,7 @@ export function ApplicationBuilder({ prequalData }: ApplicationBuilderProps) {
   const getFieldsForStep = (step: number): (keyof ApplicationFormData)[] => {
     switch (step) {
       case 1:
-        return ['equipmentType', 'equipmentDescription', 'equipmentCondition', 'equipmentCost', 'vendorCompany']
+        return ['equipmentType', 'equipmentDescription', 'equipmentCondition', 'equipmentCost', 'salespersonName']
       case 2:
         return ['businessLegalName', 'businessType', 'taxId', 'yearsInBusiness', 'industryType']
       case 3:
@@ -175,7 +180,7 @@ export function ApplicationBuilder({ prequalData }: ApplicationBuilderProps) {
 
     try {
       // Submit complete application to deals table
-      const { error } = await supabase
+      const { data: dealData, error } = await supabase
         .from('deals')
         .insert({
           vendor_id: authUser?.id,
@@ -183,14 +188,30 @@ export function ApplicationBuilder({ prequalData }: ApplicationBuilderProps) {
           customer_name: data.businessLegalName,
           equipment_type: data.equipmentType,
           deal_amount: data.equipmentCost,
-          current_stage: 'new',
+          current_stage: 'application',
           application_data: data,
         })
+        .select()
+        .single()
 
       if (error) throw error
 
-      alert('Application submitted successfully!')
-      // Could redirect to deals page or show success state
+      // Insert any uploaded documents
+      if (uploadedFiles.length > 0) {
+        const documentInserts = uploadedFiles.map(file => ({
+          deal_id: dealData.id,
+          file_name: file.name,
+          file_path: file.url || '',
+          file_type: file.type,
+          uploaded_by: authUser?.id,
+        }))
+
+        await supabase.from('documents').insert(documentInserts)
+      }
+
+      // Show success message and redirect
+      alert('Thank you! Your application has been submitted to your broker.')
+      router.push('/deals')
     } catch (error) {
       console.error('Error submitting application:', error)
       alert('Error submitting application. Please try again.')
@@ -261,14 +282,14 @@ export function ApplicationBuilder({ prequalData }: ApplicationBuilderProps) {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="vendorCompany">Equipment Vendor/Dealer</Label>
+                <Label htmlFor="salespersonName">Salesperson Name</Label>
                 <Input
-                  id="vendorCompany"
-                  placeholder="ABC Equipment Co."
-                  {...register('vendorCompany')}
+                  id="salespersonName"
+                  placeholder="John Smith"
+                  {...register('salespersonName')}
                 />
-                {errors.vendorCompany && (
-                  <p className="text-sm text-red-600">{errors.vendorCompany.message}</p>
+                {errors.salespersonName && (
+                  <p className="text-sm text-red-600">{errors.salespersonName.message}</p>
                 )}
               </div>
             </div>
@@ -630,10 +651,15 @@ export function ApplicationBuilder({ prequalData }: ApplicationBuilderProps) {
                 Upload invoices, quotes, financial statements, and other supporting documents for your application
               </p>
             </div>
-            <DocumentUpload onFilesChange={(files) => {
-              // Store uploaded files in form data or separate state
-              console.log('Files uploaded:', files)
-            }} />
+            <DocumentUpload
+              onFilesChange={(files) => {
+                setUploadedFiles(files)
+                console.log('Files uploaded:', files)
+              }}
+              onValidationChange={(isValid) => {
+                setDocumentsValid(isValid)
+              }}
+            />
           </div>
         )
 
@@ -722,10 +748,10 @@ export function ApplicationBuilder({ prequalData }: ApplicationBuilderProps) {
             ) : (
               <Button
                 type="submit"
-                disabled={loading}
-                className="bg-gradient-to-r from-green-600 to-orange-600 hover:from-green-700 hover:to-orange-700 text-white px-6"
+                disabled={loading || !documentsValid}
+                className="bg-gradient-to-r from-green-600 to-orange-600 hover:from-green-700 hover:to-orange-700 text-white px-6 disabled:opacity-50"
               >
-                {loading ? 'Submitting...' : 'Submit Application'}
+                {loading ? 'Submitting...' : !documentsValid ? 'Upload Equipment Invoice to Submit' : 'Submit Application'}
               </Button>
             )}
           </div>
