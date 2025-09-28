@@ -71,7 +71,15 @@ export function ApplicationBuilder({ prequalData }: ApplicationBuilderProps) {
   const [currentStep, setCurrentStep] = useState(1)
   const [loading, setLoading] = useState(false)
   const [isDraft, setIsDraft] = useState(false)
-  const [uploadedFiles, setUploadedFiles] = useState<any[]>([])
+  const [uploadedFiles, setUploadedFiles] = useState<{
+    id: string;
+    name: string;
+    size: number;
+    type: string;
+    url?: string;
+    uploadedAt: Date;
+    category: string;
+  }[]>([])
   const [documentsValid, setDocumentsValid] = useState(false)
   const { authUser } = useAuth()
   const router = useRouter()
