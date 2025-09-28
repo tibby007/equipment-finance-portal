@@ -164,7 +164,10 @@ export default function DealsPage() {
   }
 
   const handleSaveEdit = async () => {
-    if (!selectedDeal || !authUser || authUser.userType !== 'broker') return
+    if (!selectedDeal || !authUser) return
+
+    // Check permissions: broker can edit any deal, vendor can only edit their own
+    if (authUser.userType === 'vendor' && selectedDeal.vendor_id !== authUser.id) return
 
     setLoading(true)
     try {
@@ -353,6 +356,11 @@ export default function DealsPage() {
                         </Button>
                       </>
                     )}
+                    {authUser?.userType === 'vendor' && selectedDeal.vendor_id === authUser.id && (
+                      <Button variant="outline" size="sm" onClick={handleEditDeal} className="text-blue-600 hover:text-blue-700">
+                        Edit Application
+                      </Button>
+                    )}
                     <Button variant="outline" onClick={handleCloseDealModal}>
                       ✕
                     </Button>
@@ -360,9 +368,11 @@ export default function DealsPage() {
                 </div>
               </CardHeader>
               <CardContent className="space-y-6">
-                {showEditMode && authUser?.userType === 'broker' ? (
+                {showEditMode && (authUser?.userType === 'broker' || (authUser?.userType === 'vendor' && selectedDeal.vendor_id === authUser.id)) ? (
                   <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
-                    <h3 className="text-lg font-semibold mb-4 text-blue-800">Edit Deal</h3>
+                    <h3 className="text-lg font-semibold mb-4 text-blue-800">
+                      {authUser?.userType === 'broker' ? 'Edit Deal' : 'Edit Application'}
+                    </h3>
                     <div className="space-y-4">
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">

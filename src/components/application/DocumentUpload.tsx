@@ -39,7 +39,7 @@ export function DocumentUpload({
   useEffect(() => {
     const hasEquipmentInvoice = files.some(file => file.category === 'invoice')
     onValidationChange?.(hasEquipmentInvoice)
-  }, [files, onValidationChange])
+  }, [files]) // Removed onValidationChange from dependencies to prevent infinite re-renders
 
   // Allowed file types
   const allowedTypes = {
@@ -209,11 +209,7 @@ export function DocumentUpload({
 
       console.log(`File "${fileToRemove.name}" removed successfully`)
 
-      // Force re-render validation
-      setTimeout(() => {
-        const hasEquipmentInvoice = updatedFiles.some(file => file.category === 'invoice')
-        onValidationChange?.(hasEquipmentInvoice)
-      }, 100)
+      // Validation will be handled automatically by useEffect when files state changes
 
     } catch (error) {
       console.error('Error removing file:', error)
