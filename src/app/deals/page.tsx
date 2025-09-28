@@ -26,7 +26,11 @@ export default function DealsPage() {
   const [dealDocuments, setDealDocuments] = useState<Document[]>([])
   const [loading, setLoading] = useState(false)
   const [showEditMode, setShowEditMode] = useState(false)
-  const [editData, setEditData] = useState<any>({})
+  const [editData, setEditData] = useState<{
+    customer_name?: string;
+    equipment_type?: string;
+    deal_amount?: number;
+  }>({})
 
   const handleDealClick = async (deal: Deal) => {
     setSelectedDeal(deal)
@@ -228,7 +232,7 @@ export default function DealsPage() {
     if (!selectedDeal) return
 
     const doc = new jsPDF()
-    const applicationData = selectedDeal.application_data as any || {}
+    const applicationData = (selectedDeal.application_data as Record<string, unknown>) || {}
 
     // Header
     doc.setFontSize(20)
