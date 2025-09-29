@@ -39,8 +39,14 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
   const router = useRouter()
 
   useEffect(() => {
+    // Only redirect if we're certain the user is not authenticated
+    // Add a small delay to prevent redirects during state updates
     if (!loading && !authUser && typeof window !== 'undefined') {
-      router.push('/')
+      const timeoutId = setTimeout(() => {
+        router.push('/')
+      }, 100)
+
+      return () => clearTimeout(timeoutId)
     }
   }, [authUser, loading, router])
 
