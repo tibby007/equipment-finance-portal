@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import { useAuth } from '@/contexts/AuthContext'
@@ -63,7 +63,8 @@ export default function SettingsPage() {
       loadBrokerSettings()
       loadUsageData()
     }
-  }, [authUser, loading, router, loadBrokerSettings, loadUsageData])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [authUser, loading, router])
 
   const loadBrokerSettings = async () => {
     if (!authUser) return
