@@ -152,7 +152,6 @@ export default function TermsPage() {
                 </p>
                 <div className="bg-gray-50 p-4 rounded-lg">
                   <p className="text-gray-600 mb-2">📧 Email: support@emergestack.dev</p>
-                  <p className="text-gray-600 mb-2">📞 Phone: (555) 123-4567</p>
                   <p className="text-gray-600">📍 Address: 3379 Bill Arp, Douglasville GA 30135</p>
                 </div>
               </section>

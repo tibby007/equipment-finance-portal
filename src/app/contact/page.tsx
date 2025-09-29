@@ -219,13 +219,7 @@ export default function ContactPage() {
                     📧 support@emergestack.dev
                   </p>
                   <p className="text-lg text-gray-600">
-                    📞 (555) 123-4567
-                  </p>
-                  <p className="text-lg text-gray-600">
                     📍 3379 Bill Arp, Douglasville GA 30135
-                  </p>
-                  <p className="text-sm text-gray-500">
-                    Available Monday - Friday, 9 AM - 6 PM EST
                   </p>
                 </div>
               </div>
