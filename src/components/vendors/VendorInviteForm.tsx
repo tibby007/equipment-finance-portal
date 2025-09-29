@@ -49,7 +49,6 @@ export function VendorInviteForm({ onSuccess }: VendorInviteFormProps) {
   }
 
   const sendInvitationEmail = async (vendorData: InviteFormData, tempPassword: string) => {
-    // Mock email service - in production this would integrate with n8n workflow
     const emailContent = {
       to: vendorData.email,
       subject: `Welcome to ${authUser?.profile.company_name} VendorHub OS Network`,
@@ -58,45 +57,37 @@ export function VendorInviteForm({ onSuccess }: VendorInviteFormProps) {
       loginUrl: `${window.location.origin}/login`,
       email: vendorData.email,
       temporaryPassword: tempPassword,
-      message: `
-🎉 Welcome to VendorHub OS!
-
-Hi ${vendorData.firstName},
-
-You've been invited to join ${authUser?.profile.company_name}'s vendor network on VendorHub OS!
-
-Your login credentials:
-📧 Email: ${vendorData.email}
-🔑 Temporary Password: ${tempPassword}
-
-🔗 Login at: ${window.location.origin}/login
-
-⚠️ IMPORTANT: You'll be required to change your password on first login for security.
-
-Best regards,
-The VendorHub OS Team
-      `
     }
 
-    // In development, we'll show this in the browser console
-    console.log('📧 VENDOR INVITATION EMAIL:', emailContent)
+    try {
+      const response = await fetch('/api/send-invitation', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(emailContent)
+      })
 
-    // Store invitation in browser storage for demo purposes
-    const invitations = JSON.parse(localStorage.getItem('vendor_invitations') || '[]')
-    invitations.push({
-      ...emailContent,
-      sentAt: new Date().toISOString()
-    })
-    localStorage.setItem('vendor_invitations', JSON.stringify(invitations))
+      const result = await response.json()
 
-    // TODO: Replace with actual n8n webhook in production
-    /*
-    await fetch('/api/webhooks/send-invitation', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(emailContent)
-    })
-    */
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to send invitation email')
+      }
+
+      console.log('📧 Invitation email sent successfully:', result)
+
+      // Also store in localStorage for backup/demo purposes
+      const invitations = JSON.parse(localStorage.getItem('vendor_invitations') || '[]')
+      invitations.push({
+        ...emailContent,
+        sentAt: new Date().toISOString(),
+        emailId: result.data?.id
+      })
+      localStorage.setItem('vendor_invitations', JSON.stringify(invitations))
+
+      return result
+    } catch (error) {
+      console.error('Failed to send invitation email:', error)
+      throw error
+    }
   }
 
   const onSubmit = async (data: InviteFormData) => {
