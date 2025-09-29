@@ -20,7 +20,7 @@ export default function PrivacyPage() {
               <section className="mb-8">
                 <h2 className="text-2xl font-semibold text-gray-900 mb-4">1. Introduction</h2>
                 <p className="text-gray-600 mb-4">
-                  VendorHub OS ("we," "our," or "us") respects your privacy and is committed to protecting your personal information.
+                  VendorHub OS (&quot;we,&quot; &quot;our,&quot; or &quot;us&quot;) respects your privacy and is committed to protecting your personal information.
                   This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our
                   equipment finance portal platform.
                 </p>
@@ -106,7 +106,7 @@ export default function PrivacyPage() {
               </section>
 
               <section className="mb-8">
-                <h2 className="text-2xl font-semibold text-gray-900 mb-4">8. Children's Privacy</h2>
+                <h2 className="text-2xl font-semibold text-gray-900 mb-4">8. Children&apos;s Privacy</h2>
                 <p className="text-gray-600 mb-4">
                   Our platform is not intended for use by individuals under the age of 18. We do not knowingly collect
                   personal information from children under 18.

@@ -20,7 +20,7 @@ export default function TermsPage() {
               <section className="mb-8">
                 <h2 className="text-2xl font-semibold text-gray-900 mb-4">1. Acceptance of Terms</h2>
                 <p className="text-gray-600 mb-4">
-                  By accessing and using VendorHub OS ("the Platform"), you accept and agree to be bound by these
+                  By accessing and using VendorHub OS (&quot;the Platform&quot;), you accept and agree to be bound by these
                   Terms of Service. If you do not agree to these terms, you may not use our services.
                 </p>
               </section>
@@ -53,7 +53,7 @@ export default function TermsPage() {
                   <li>Upload malicious code, viruses, or harmful content</li>
                   <li>Attempt to gain unauthorized access to our systems</li>
                   <li>Use the Platform for fraudulent or deceptive purposes</li>
-                  <li>Interfere with or disrupt the Platform's operation</li>
+                  <li>Interfere with or disrupt the Platform&apos;s operation</li>
                 </ul>
               </section>
 
@@ -103,7 +103,7 @@ export default function TermsPage() {
               <section className="mb-8">
                 <h2 className="text-2xl font-semibold text-gray-900 mb-4">9. Disclaimers and Limitation of Liability</h2>
                 <p className="text-gray-600 mb-4">
-                  THE PLATFORM IS PROVIDED "AS IS" WITHOUT WARRANTIES OF ANY KIND. WE DISCLAIM ALL WARRANTIES,
+                  THE PLATFORM IS PROVIDED &quot;AS IS&quot; WITHOUT WARRANTIES OF ANY KIND. WE DISCLAIM ALL WARRANTIES,
                   EXPRESS OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
                 </p>
                 <p className="text-gray-600 mb-4">
