@@ -222,16 +222,20 @@ export default function DealsPage() {
 
       if (error) throw error
 
-      handleCloseDealModal()
       alert('Deal deleted successfully!')
+      handleCloseDealModal()
+
+      // Set loading to false before reload to prevent UI issues
+      setLoading(false)
 
       // Refresh the page to update the kanban board
-      window.location.reload()
+      setTimeout(() => {
+        window.location.reload()
+      }, 500) // Small delay to ensure UI updates
     } catch (error) {
       console.error('Error deleting deal:', error)
       alert('Error deleting deal. Please try again.')
-    } finally {
-      setLoading(false)
+      setLoading(false) // Ensure loading is reset on error
     }
   }
 
