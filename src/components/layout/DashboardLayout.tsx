@@ -3,6 +3,7 @@
 import { useAuth } from '@/contexts/AuthContext'
 import { useBranding } from '@/contexts/BrandingContext'
 import { Button } from '@/components/ui/button'
+import Image from 'next/image'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import {
   DropdownMenu,
@@ -151,9 +152,11 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
             <SidebarGroup>
               <div className="flex items-center space-x-3 px-2 py-1">
                 {branding?.company_logo_url && (
-                  <img
+                  <Image
                     src={branding.company_logo_url}
                     alt={companyName}
+                    width={32}
+                    height={32}
                     className="w-8 h-8 object-contain"
                   />
                 )}

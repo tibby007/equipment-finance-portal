@@ -39,6 +39,7 @@ export function DocumentUpload({
   useEffect(() => {
     const hasEquipmentInvoice = files.some(file => file.category === 'invoice')
     onValidationChange?.(hasEquipmentInvoice)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [files]) // Removed onValidationChange from dependencies to prevent infinite re-renders
 
   // Allowed file types
@@ -153,7 +154,7 @@ export function DocumentUpload({
     } finally {
       setUploading(false)
     }
-  }, [files, onFilesChange, maxFiles, maxFileSize, authUser])
+  }, [files, onFilesChange, maxFiles, maxFileSize, authUser, allowedTypes])
 
   const handleDrag = useCallback((e: React.DragEvent) => {
     e.preventDefault()

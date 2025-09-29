@@ -1,7 +1,8 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
+import Image from 'next/image'
 import { useAuth } from '@/contexts/AuthContext'
 import { useBranding } from '@/contexts/BrandingContext'
 import { DashboardLayout } from '@/components/layout/DashboardLayout'
@@ -62,7 +63,7 @@ export default function SettingsPage() {
       loadBrokerSettings()
       loadUsageData()
     }
-  }, [authUser, loading, router])
+  }, [authUser, loading, router, loadBrokerSettings, loadUsageData])
 
   const loadBrokerSettings = async () => {
     if (!authUser) return
@@ -271,9 +272,11 @@ export default function SettingsPage() {
                   <Label htmlFor="logo">Company Logo</Label>
                   <div className="flex items-center space-x-4">
                     {settings.company_logo_url && (
-                      <img
+                      <Image
                         src={settings.company_logo_url}
                         alt="Company Logo"
+                        width={64}
+                        height={64}
                         className="w-16 h-16 object-contain border rounded"
                       />
                     )}
