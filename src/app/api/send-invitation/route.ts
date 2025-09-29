@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
     } = await request.json()
 
     const { data, error } = await resend.emails.send({
-      from: 'VendorHub OS <noreply@vendorhubos.com>', // Replace with your verified domain
+      from: 'VendorHub OS <noreply@emergestack.dev>',
       to: [to],
       subject: subject,
       html: `

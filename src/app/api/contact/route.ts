@@ -15,7 +15,7 @@ export async function POST(request: NextRequest) {
     } = await request.json()
 
     const { data, error } = await resend.emails.send({
-      from: 'VendorHub OS Contact <noreply@vendorhubos.com>',
+      from: 'VendorHub OS Contact <noreply@emergestack.dev>',
       to: ['support@emergestack.dev'],
       subject: `New Contact Form Submission from ${firstName} ${lastName}`,
       html: `

@@ -508,7 +508,7 @@ export function ApplicationBuilder({ prequalData }: ApplicationBuilderProps) {
                 <Label htmlFor="businessPhone">Business Phone</Label>
                 <Input
                   id="businessPhone"
-                  placeholder="(555) 123-4567"
+                  placeholder="Enter business phone"
                   {...register('businessPhone')}
                 />
                 {errors.businessPhone && (

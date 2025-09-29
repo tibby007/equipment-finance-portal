@@ -160,7 +160,7 @@ export default function ContactPage() {
                       <Input
                         id="phone"
                         type="tel"
-                        placeholder="(555) 123-4567"
+                        placeholder="Enter your phone number"
                         {...register('phone')}
                       />
                       {errors.phone && (

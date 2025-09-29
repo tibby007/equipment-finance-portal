@@ -104,14 +104,14 @@ export default function ResourcesPage() {
           <CardContent className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <h3 className="font-semibold text-gray-900">Phone Support</h3>
-                <p className="text-gray-600">Call us at (555) 123-4567</p>
-                <p className="text-sm text-gray-500">Monday - Friday, 9 AM - 6 PM EST</p>
+                <h3 className="font-semibold text-gray-900">Email Support</h3>
+                <p className="text-gray-600">Email us at support@emergestack.dev</p>
+                <p className="text-sm text-gray-500">We respond within 24 hours</p>
               </div>
               <div className="space-y-2">
-                <h3 className="font-semibold text-gray-900">Email Support</h3>
-                <p className="text-gray-600">support@vendorhubos.com</p>
-                <p className="text-sm text-gray-500">Response within 24 hours</p>
+                <h3 className="font-semibold text-gray-900">Documentation</h3>
+                <p className="text-gray-600">Access our online help center and guides</p>
+                <p className="text-sm text-gray-500">Available 24/7</p>
               </div>
             </div>
             <Button className="bg-gradient-to-r from-green-600 to-orange-600 hover:from-green-700 hover:to-orange-700 text-white">

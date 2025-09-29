@@ -419,7 +419,7 @@ export default function SettingsPage() {
                       type="tel"
                       value={settings.contact_phone || ''}
                       onChange={(e) => setSettings(prev => prev ? {...prev, contact_phone: e.target.value} : null)}
-                      placeholder="(555) 123-4567"
+                      placeholder="Enter phone number"
                     />
                   </div>
 
