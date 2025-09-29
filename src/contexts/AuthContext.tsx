@@ -20,24 +20,43 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    console.log('AuthContext: Initializing auth state')
+
     // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(({ data: { session }, error }) => {
+      console.log('AuthContext: Initial session check', { session: !!session, error })
+
+      if (error) {
+        console.error('AuthContext: Error getting initial session:', error)
+        setLoading(false)
+        return
+      }
+
       setUser(session?.user ?? null)
       if (session?.user) {
+        console.log('AuthContext: Loading auth user for initial session')
         loadAuthUser()
       } else {
+        console.log('AuthContext: No initial session, setting loading to false')
         setLoading(false)
       }
+    }).catch(error => {
+      console.error('AuthContext: Unexpected error getting initial session:', error)
+      setLoading(false)
     })
 
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        console.log('AuthContext: Auth state changed', { event, session: !!session })
+
         setUser(session?.user ?? null)
-        
+
         if (session?.user) {
+          console.log('AuthContext: Loading auth user for auth change')
           await loadAuthUser()
         } else {
+          console.log('AuthContext: No session in auth change, clearing auth user')
           setAuthUser(null)
           setLoading(false)
         }
@@ -49,7 +68,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const loadAuthUser = async () => {
     try {
-      const currentUser = await getCurrentUser()
+      // Add timeout to prevent infinite loading
+      const timeoutPromise = new Promise<null>((_, reject) => {
+        setTimeout(() => reject(new Error('Auth timeout')), 10000) // 10 second timeout
+      })
+
+      const authPromise = getCurrentUser()
+      const currentUser = await Promise.race([authPromise, timeoutPromise])
+
       setAuthUser(currentUser)
     } catch (error) {
       console.error('Error loading auth user:', error)

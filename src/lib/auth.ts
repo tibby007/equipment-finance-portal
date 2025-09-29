@@ -40,43 +40,62 @@ export async function signOut() {
 }
 
 export async function getCurrentUser(): Promise<AuthUser | null> {
-  const { data: { user } } = await supabase.auth.getUser()
-  
-  if (!user) return null
+  try {
+    const { data: { user }, error: userError } = await supabase.auth.getUser()
 
-  // Check if user is a broker
-  const { data: broker } = await supabase
-    .from('brokers')
-    .select('*')
-    .eq('id', user.id)
-    .single()
-
-  if (broker) {
-    return {
-      id: user.id,
-      email: user.email!,
-      userType: 'broker',
-      profile: broker
+    if (userError) {
+      console.error('Error getting user:', userError)
+      return null
     }
-  }
 
-  // Check if user is a vendor
-  const { data: vendor } = await supabase
-    .from('vendors')
-    .select('*')
-    .eq('id', user.id)
-    .single()
+    if (!user) return null
 
-  if (vendor) {
-    return {
-      id: user.id,
-      email: user.email!,
-      userType: 'vendor',
-      profile: vendor
+    // Check if user is a broker
+    const { data: broker, error: brokerError } = await supabase
+      .from('brokers')
+      .select('*')
+      .eq('id', user.id)
+      .single()
+
+    if (brokerError && brokerError.code !== 'PGRST116') { // PGRST116 = No rows returned
+      console.error('Error fetching broker:', brokerError)
     }
-  }
 
-  return null
+    if (broker) {
+      return {
+        id: user.id,
+        email: user.email!,
+        userType: 'broker',
+        profile: broker
+      }
+    }
+
+    // Check if user is a vendor
+    const { data: vendor, error: vendorError } = await supabase
+      .from('vendors')
+      .select('*')
+      .eq('id', user.id)
+      .single()
+
+    if (vendorError && vendorError.code !== 'PGRST116') { // PGRST116 = No rows returned
+      console.error('Error fetching vendor:', vendorError)
+    }
+
+    if (vendor) {
+      return {
+        id: user.id,
+        email: user.email!,
+        userType: 'vendor',
+        profile: vendor
+      }
+    }
+
+    console.warn('User found in auth but not in brokers or vendors table:', user.id)
+    return null
+  } catch (error) {
+    console.error('Unexpected error in getCurrentUser:', error)
+    return null
+  }
 }
 
 export async function resetPassword(email: string) {
