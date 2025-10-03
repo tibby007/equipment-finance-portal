@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { signUp } from '@/lib/auth'
+import { signUp, signInWithEmail } from '@/lib/auth'
 
 const signupSchema = z.object({
   email: z.string().email('Invalid email address'),
@@ -77,7 +77,23 @@ export function BrokerSignupForm() {
           throw new Error(result.error || 'Failed to create broker profile')
         }
 
-        router.push('/dashboard')
+        // Check if user has an active session
+        if (authResult.session) {
+          // User is automatically logged in, redirect to dashboard
+          router.push('/dashboard')
+        } else {
+          // Email confirmation required, try to sign in manually
+          try {
+            await signInWithEmail(data.email, data.password)
+            router.push('/dashboard')
+          } catch (signInError) {
+            // If sign in fails, email confirmation is required
+            setError('Account created! Please check your email to confirm your account before logging in.')
+            setTimeout(() => {
+              router.push('/login')
+            }, 3000)
+          }
+        }
       }
     } catch (err: unknown) {
       setError((err as Error).message || 'An error occurred during signup')
