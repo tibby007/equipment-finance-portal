@@ -10,7 +10,6 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { signUp } from '@/lib/auth'
-import { supabase } from '@/lib/supabase'
 
 const signupSchema = z.object({
   email: z.string().email('Invalid email address'),
@@ -58,17 +57,25 @@ export function BrokerSignupForm() {
       })
 
       if (authResult.user) {
-        // Create broker profile
-        const { error: brokerError } = await supabase
-          .from('brokers')
-          .insert({
-            id: authResult.user.id,
+        // Create broker profile via API route (uses service role to bypass RLS)
+        const response = await fetch('/api/signup', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            userId: authResult.user.id,
             email: data.email,
-            company_name: data.companyName,
-            subscription_tier: data.subscriptionTier,
-          })
+            companyName: data.companyName,
+            subscriptionTier: data.subscriptionTier,
+          }),
+        })
 
-        if (brokerError) throw brokerError
+        const result = await response.json()
+
+        if (!response.ok) {
+          throw new Error(result.error || 'Failed to create broker profile')
+        }
 
         router.push('/dashboard')
       }
