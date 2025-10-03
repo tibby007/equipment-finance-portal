@@ -53,14 +53,11 @@ export async function POST(request: Request) {
       .insert({
         broker_id: userId,
         subscription_tier: subscriptionTier,
-        max_vendors: subscriptionTier === 'starter' ? 10 : subscriptionTier === 'pro' ? 50 : 999,
         payment_status: 'pending',
         is_admin: false,
-        branding: {
-          company_name: companyName,
-          primary_color: '#16a34a',
-          secondary_color: '#ea580c',
-        }
+        company_name: companyName,
+        primary_color: '#16a34a',
+        secondary_color: '#ea580c',
       })
 
     if (settingsError) {
