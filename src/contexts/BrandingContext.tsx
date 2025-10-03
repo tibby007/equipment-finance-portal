@@ -46,7 +46,23 @@ export function BrandingProvider({ children }: { children: React.ReactNode }) {
     try {
       const { data, error } = await supabase
         .from('broker_settings')
-        .select('*')
+        .select(`
+          id,
+          broker_id,
+          subscription_tier,
+          company_logo_url,
+          company_name,
+          tagline,
+          primary_color,
+          secondary_color,
+          accent_color,
+          contact_phone,
+          contact_email,
+          support_email,
+          website_url,
+          custom_domain,
+          custom_css
+        `)
         .eq('broker_id', authUser.id)
         .single()
 
