@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { CheckCircle2, X } from 'lucide-react'
+import { CheckCircle2 } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
 
 const SUBSCRIPTION_PLANS = [
@@ -59,15 +59,15 @@ const SUBSCRIPTION_PLANS = [
 export default function PaymentRequiredPage() {
   const [loading, setLoading] = useState<string | null>(null)
   const [error, setError] = useState('')
-  const { user } = useAuth()
+  const { user, authUser } = useAuth()
   const router = useRouter()
 
   useEffect(() => {
     // Check if user is admin
-    if (user?.profile && 'is_admin' in user.profile && user.profile.is_admin) {
+    if (authUser?.profile && 'is_admin' in authUser.profile && authUser.profile.is_admin) {
       router.push('/dashboard')
     }
-  }, [user, router])
+  }, [authUser, router])
 
   const handleSubscribe = async (tier: string) => {
     try {

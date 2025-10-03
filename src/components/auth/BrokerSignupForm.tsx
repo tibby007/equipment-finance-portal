@@ -86,7 +86,7 @@ export function BrokerSignupForm() {
           try {
             await signInWithEmail(data.email, data.password)
             router.push('/dashboard')
-          } catch (signInError) {
+          } catch {
             // If sign in fails, email confirmation is required
             setError('Account created! Please check your email to confirm your account before logging in.')
             setTimeout(() => {
