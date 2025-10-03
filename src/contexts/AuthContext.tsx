@@ -32,6 +32,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return
       }
 
+      console.log('AuthContext: Initial session loaded', session?.user?.email)
       setUser(session?.user ?? null)
       if (session?.user) {
         loadAuthUser()
@@ -71,12 +72,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const loadAuthUser = async () => {
     try {
+      console.log('AuthContext: Loading auth user...')
       const currentUser = await getCurrentUser()
+      console.log('AuthContext: Auth user loaded', currentUser?.email, currentUser?.userType)
       setAuthUser(currentUser)
     } catch (error) {
-      console.error('Error loading auth user:', error)
+      console.error('AuthContext: Error loading auth user:', error)
       setAuthUser(null)
     } finally {
+      console.log('AuthContext: Loading complete, setting loading = false')
       setLoading(false)
     }
   }
