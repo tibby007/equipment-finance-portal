@@ -33,6 +33,8 @@ export async function POST(request: Request) {
         email: email,
         company_name: companyName,
         subscription_tier: subscriptionTier,
+        payment_status: 'pending',
+        is_admin: false,
       })
       .select()
       .single()
@@ -52,6 +54,8 @@ export async function POST(request: Request) {
         broker_id: userId,
         subscription_tier: subscriptionTier,
         max_vendors: subscriptionTier === 'starter' ? 10 : subscriptionTier === 'pro' ? 50 : 999,
+        payment_status: 'pending',
+        is_admin: false,
         branding: {
           company_name: companyName,
           primary_color: '#16a34a',
