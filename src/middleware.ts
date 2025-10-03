@@ -50,19 +50,31 @@ export async function middleware(req: NextRequest) {
 
   if (isProtectedRoute && session) {
     // Fetch broker info to check payment status and admin flag
-    const { data: broker } = await supabase
+    const { data: broker, error: brokerError } = await supabase
       .from('brokers')
       .select('payment_status, is_admin')
       .eq('id', session.user.id)
       .single()
+
+    // Log errors for debugging
+    if (brokerError) {
+      console.error('Middleware: Error fetching broker:', brokerError)
+    }
 
     // Allow admin users to bypass payment
     if (broker?.is_admin) {
       return res
     }
 
+    // If we can't fetch broker info, allow through (fail open for now)
+    // This prevents blocking users if there's a temporary DB issue
+    if (!broker) {
+      console.warn('Middleware: No broker found for user', session.user.id)
+      return res
+    }
+
     // Check if payment is required
-    if (!broker?.payment_status || broker.payment_status === 'pending') {
+    if (!broker.payment_status || broker.payment_status === 'pending') {
       return NextResponse.redirect(new URL('/payment-required', req.url))
     }
 
