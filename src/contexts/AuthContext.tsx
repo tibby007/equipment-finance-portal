@@ -88,20 +88,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const handleSignOut = async () => {
     try {
       const { error } = await supabase.auth.signOut()
-      if (error) throw error
-
-      // Clear state immediately
-      setUser(null)
-      setAuthUser(null)
-
-      // Clear local storage
-      localStorage.clear()
-
-      // Force redirect to home
-      window.location.href = '/'
+      if (error) {
+        console.error('Supabase sign out error:', error)
+        // Don't throw - continue with local cleanup
+      }
     } catch (error) {
       console.error('Error signing out:', error)
-      alert('Error signing out. Please try again.')
+      // Don't block logout on error
+    } finally {
+      // Always clear state and redirect, even if Supabase fails
+      setUser(null)
+      setAuthUser(null)
+      localStorage.clear()
+      sessionStorage.clear()
+
+      // Force hard reload to clear all state
+      window.location.href = '/'
     }
   }
 
