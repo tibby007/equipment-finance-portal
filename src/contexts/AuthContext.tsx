@@ -22,12 +22,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     let isMounted = true
 
+    // Safety timeout: ensure loading becomes false after 5 seconds max
+    const safetyTimeout = setTimeout(() => {
+      if (isMounted) {
+        console.warn('AuthContext: Safety timeout - forcing loading to false')
+        setLoading(false)
+      }
+    }, 5000)
+
     // Get initial session
     supabase.auth.getSession().then(({ data: { session }, error }) => {
       if (!isMounted) return
 
       if (error) {
         console.error('AuthContext: Error getting initial session:', error)
+        clearTimeout(safetyTimeout)
         setLoading(false)
         return
       }
@@ -37,11 +46,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (session?.user) {
         loadAuthUser()
       } else {
+        clearTimeout(safetyTimeout)
         setLoading(false)
       }
     }).catch(error => {
       if (!isMounted) return
       console.error('AuthContext: Unexpected error getting initial session:', error)
+      clearTimeout(safetyTimeout)
       setLoading(false)
     })
 
@@ -66,6 +77,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     return () => {
       isMounted = false
+      clearTimeout(safetyTimeout)
       subscription.unsubscribe()
     }
   }, [])
@@ -73,7 +85,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const loadAuthUser = async () => {
     try {
       console.log('AuthContext: Loading auth user...')
-      const currentUser = await getCurrentUser()
+
+      // Add timeout to prevent hanging
+      const timeoutPromise = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('loadAuthUser timeout')), 3000)
+      )
+
+      const currentUser = await Promise.race([
+        getCurrentUser(),
+        timeoutPromise
+      ]) as AuthUser | null
+
       console.log('AuthContext: Auth user loaded', currentUser?.email, currentUser?.userType)
       setAuthUser(currentUser)
     } catch (error) {

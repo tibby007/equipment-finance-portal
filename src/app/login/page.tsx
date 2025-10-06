@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
 import { LoginForm } from '@/components/auth/LoginForm'
@@ -9,28 +9,40 @@ import Link from 'next/link'
 export default function LoginPage() {
   const { authUser, loading } = useAuth()
   const router = useRouter()
+  const [hasRedirected, setHasRedirected] = useState(false)
 
   useEffect(() => {
-    console.log('LoginPage: useEffect triggered', { loading, authUser: authUser?.email })
-    if (!loading && authUser) {
+    console.log('LoginPage: useEffect triggered', { loading, authUser: authUser?.email, hasRedirected })
+
+    // Only redirect if we have a user AND we haven't already started redirecting
+    if (!loading && authUser && !hasRedirected) {
       console.log('LoginPage: Redirecting to dashboard')
+      setHasRedirected(true)
       // Use hard redirect to ensure middleware sees the session
       window.location.href = '/dashboard'
     }
-  }, [authUser, loading, router])
+  }, [authUser, loading, hasRedirected])
 
+  // Show initial loading state
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900"></div>
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading...</p>
+        </div>
       </div>
     )
   }
 
-  if (authUser) {
+  // Show redirecting state
+  if (authUser && hasRedirected) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900"></div>
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Redirecting to dashboard...</p>
+        </div>
       </div>
     )
   }
