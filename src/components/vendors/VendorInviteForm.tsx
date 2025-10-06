@@ -28,6 +28,7 @@ export function VendorInviteForm({ onSuccess }: VendorInviteFormProps) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
+  const [emailTemplate, setEmailTemplate] = useState('')
   const { authUser } = useAuth()
 
   const {
@@ -121,14 +122,27 @@ export function VendorInviteForm({ onSuccess }: VendorInviteFormProps) {
         throw new Error(result.error || 'Failed to invite vendor')
       }
 
-      if (result.emailSent) {
-        setSuccess(`✅ Vendor account created! ${data.email} will receive login credentials via email.`)
-      } else {
-        setSuccess(`✅ Vendor account created! Share these credentials with ${data.email}:\nEmail: ${data.email}\nTemporary Password: ${result.tempPassword}`)
-      }
+      // Create email template for broker to copy/paste
+      const template = `Hi ${data.firstName},
 
+Welcome to ${authUser.profile.company_name}'s vendor network on VendorHub OS!
+
+Your account has been created. Here are your login credentials:
+
+🔗 Login URL: ${window.location.origin}/login
+📧 Email: ${data.email}
+🔑 Temporary Password: ${result.tempPassword}
+
+⚠️ IMPORTANT: You will be required to change your password when you first log in.
+
+Once logged in, you can submit equipment finance applications and track their status.
+
+Best regards,
+${authUser.profile.company_name}`
+
+      setEmailTemplate(template)
+      setSuccess(`✅ Vendor account created successfully!`)
       reset()
-      onSuccess?.()
     } catch (err: unknown) {
       setError((err as Error).message || 'An error occurred while sending the invitation')
     } finally {
@@ -218,11 +232,40 @@ export function VendorInviteForm({ onSuccess }: VendorInviteFormProps) {
           )}
 
           {success && (
-            <div className="p-4 text-sm text-green-700 bg-gradient-to-r from-green-50 to-emerald-100 border border-green-200 rounded-lg shadow-sm">
-              <div className="flex items-center space-x-2">
-                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                <span>{success}</span>
+            <div className="space-y-4">
+              <div className="p-4 text-sm text-green-700 bg-gradient-to-r from-green-50 to-emerald-100 border border-green-200 rounded-lg shadow-sm">
+                <div className="flex items-center space-x-2">
+                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                  <span>{success}</span>
+                </div>
               </div>
+
+              {emailTemplate && (
+                <div className="p-4 bg-gray-50 border border-gray-300 rounded-lg">
+                  <div className="flex items-center justify-between mb-2">
+                    <Label className="font-semibold text-gray-900">📧 Email to Send to Vendor:</Label>
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="outline"
+                      onClick={() => {
+                        navigator.clipboard.writeText(emailTemplate)
+                        alert('Email template copied to clipboard!')
+                      }}
+                    >
+                      📋 Copy
+                    </Button>
+                  </div>
+                  <textarea
+                    readOnly
+                    value={emailTemplate}
+                    className="w-full h-64 p-3 text-sm font-mono bg-white border border-gray-300 rounded-lg resize-none"
+                  />
+                  <p className="text-xs text-gray-600 mt-2">
+                    Copy this message and send it to the vendor via your preferred email client.
+                  </p>
+                </div>
+              )}
             </div>
           )}
 
