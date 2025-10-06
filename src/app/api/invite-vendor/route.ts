@@ -75,6 +75,7 @@ export async function POST(request: Request) {
         first_name: firstName,
         last_name: lastName,
         company_name: companyName,
+        password_hash: 'managed_by_supabase_auth', // Dummy value - actual password in Supabase Auth
         must_change_password: true,
       })
 
