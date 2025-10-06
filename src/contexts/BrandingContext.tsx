@@ -1,6 +1,6 @@
 'use client'
 
-import React, { createContext, useContext, useState, useEffect } from 'react'
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react'
 import { useAuth } from './AuthContext'
 import { supabase } from '@/lib/supabase'
 import { SubscriptionService, SubscriptionFeatures } from '@/lib/subscription'
@@ -37,7 +37,7 @@ export function BrandingProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true)
   const { authUser } = useAuth()
 
-  const loadBranding = async () => {
+  const loadBranding = useCallback(async () => {
     if (!authUser || authUser.userType !== 'broker') {
       setLoading(false)
       return
@@ -92,7 +92,7 @@ export function BrandingProvider({ children }: { children: React.ReactNode }) {
     } finally {
       setLoading(false)
     }
-  }
+  }, [authUser])
 
   const refreshBranding = async () => {
     await loadBranding()
@@ -121,7 +121,7 @@ export function BrandingProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     loadBranding()
-  }, [authUser])
+  }, [loadBranding])
 
   const value: BrandingContextType = {
     branding,
