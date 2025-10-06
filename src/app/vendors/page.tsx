@@ -97,7 +97,7 @@ export default function VendorsPage() {
             onClick={() => setShowInviteForm(!showInviteForm)}
             className={showInviteForm ? "bg-gray-500 hover:bg-gray-600" : "bg-gradient-to-r from-green-600 to-orange-600 hover:from-green-700 hover:to-orange-700 shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200"}
           >
-            {showInviteForm ? '✕ Cancel' : '➕ Invite Vendor'}
+            {showInviteForm ? '✕ Cancel' : '➕ Create Vendor'}
           </Button>
         </div>
 

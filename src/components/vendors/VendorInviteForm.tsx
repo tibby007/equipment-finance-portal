@@ -163,9 +163,9 @@ ${authUser.profile.company_name}`
             <span className="text-white font-bold text-lg">+</span>
           </div>
           <div>
-            <CardTitle className="text-xl font-bold text-gray-900">Invite New Vendor</CardTitle>
+            <CardTitle className="text-xl font-bold text-gray-900">Create Vendor Account</CardTitle>
             <CardDescription className="text-gray-600">
-              Send an invitation to a vendor to join your VendorHub OS network
+              Create a vendor account and get login credentials to send them
             </CardDescription>
           </div>
         </div>
@@ -282,12 +282,12 @@ ${authUser.profile.company_name}`
             {loading ? (
               <div className="flex items-center space-x-2">
                 <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                <span>Sending Invitation...</span>
+                <span>Creating Vendor Account...</span>
               </div>
             ) : (
               <div className="flex items-center space-x-2">
-                <span>📧</span>
-                <span>Send Invitation</span>
+                <span>➕</span>
+                <span>Create Vendor Account</span>
               </div>
             )}
           </Button>
