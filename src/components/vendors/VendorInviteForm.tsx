@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { supabase, createServiceRoleClient } from '@/lib/supabase'
+import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/contexts/AuthContext'
 
 const inviteSchema = z.object({
@@ -101,45 +101,34 @@ export function VendorInviteForm({ onSuccess }: VendorInviteFormProps) {
       setError('')
       setSuccess('')
 
-      const tempPassword = generateTemporaryPassword()
-      const serviceRoleClient = createServiceRoleClient()
-
-      // Create auth user
-      const { data: authData, error: authError } = await serviceRoleClient.auth.admin.createUser({
-        email: data.email,
-        password: tempPassword,
-        email_confirm: true,
-        user_metadata: {
-          userType: 'vendor'
-        }
+      // Call API to create vendor and send invitation
+      const response = await fetch('/api/invite-vendor', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          brokerId: authUser.id,
+          email: data.email,
+          firstName: data.firstName,
+          lastName: data.lastName,
+          companyName: data.companyName,
+          brokerCompanyName: authUser.profile.company_name,
+        })
       })
 
-      if (authError) throw authError
+      const result = await response.json()
 
-      if (authData.user) {
-        // Create vendor profile
-        const { error: vendorError } = await supabase
-          .from('vendors')
-          .insert({
-            id: authData.user.id,
-            broker_id: authUser.id,
-            email: data.email,
-            first_name: data.firstName,
-            last_name: data.lastName,
-            company_name: data.companyName,
-            password_hash: '', // This will be handled by Supabase Auth
-            must_change_password: true,
-          })
-
-        if (vendorError) throw vendorError
-
-        // Send invitation email
-        await sendInvitationEmail(data, tempPassword)
-
-        setSuccess(`Invitation sent to ${data.email}! They will receive login credentials via email.`)
-        reset()
-        onSuccess?.()
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to invite vendor')
       }
+
+      if (result.emailSent) {
+        setSuccess(`✅ Vendor account created! ${data.email} will receive login credentials via email.`)
+      } else {
+        setSuccess(`✅ Vendor account created! Share these credentials with ${data.email}:\nEmail: ${data.email}\nTemporary Password: ${result.tempPassword}`)
+      }
+
+      reset()
+      onSuccess?.()
     } catch (err: unknown) {
       setError((err as Error).message || 'An error occurred while sending the invitation')
     } finally {
