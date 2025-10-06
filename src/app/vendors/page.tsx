@@ -51,6 +51,34 @@ export default function VendorsPage() {
     loadVendors()
   }
 
+  const handleDeleteVendor = async (vendorId: string, vendorName: string) => {
+    if (!confirm(`Are you sure you want to delete ${vendorName}? This will permanently delete their account and all associated data.`)) {
+      return
+    }
+
+    try {
+      const response = await fetch('/api/delete-vendor', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          vendorId,
+          brokerId: authUser?.id
+        })
+      })
+
+      const result = await response.json()
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to delete vendor')
+      }
+
+      alert('Vendor deleted successfully')
+      loadVendors()
+    } catch (error) {
+      alert((error as Error).message || 'Failed to delete vendor')
+    }
+  }
+
   if (authUser?.userType !== 'broker') {
     return null
   }
@@ -132,7 +160,7 @@ export default function VendorsPage() {
                           </div>
                         </div>
                       </div>
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-3">
                         <div className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold shadow-sm ${
                           vendor.must_change_password
                             ? 'bg-gradient-to-r from-yellow-400 to-orange-500 text-white'
@@ -143,6 +171,14 @@ export default function VendorsPage() {
                         <div className="text-xs text-muted-foreground">
                           Joined {new Date(vendor.created_at).toLocaleDateString()}
                         </div>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleDeleteVendor(vendor.id, `${vendor.first_name} ${vendor.last_name}`)}
+                          className="text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200"
+                        >
+                          🗑️ Delete
+                        </Button>
                       </div>
                     </div>
                   ))}
