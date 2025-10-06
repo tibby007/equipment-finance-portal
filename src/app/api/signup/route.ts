@@ -33,7 +33,7 @@ export async function POST(request: Request) {
         email: email,
         company_name: companyName,
         subscription_tier: subscriptionTier,
-        payment_status: 'pending',
+        payment_status: 'active', // All signups are active - no payment required
         is_admin: false,
       })
       .select()
@@ -53,7 +53,7 @@ export async function POST(request: Request) {
       .insert({
         broker_id: userId,
         subscription_tier: subscriptionTier,
-        payment_status: 'pending',
+        payment_status: 'active', // All signups are active - no payment required
         is_admin: false,
         company_name: companyName,
         primary_color: '#16a34a',
