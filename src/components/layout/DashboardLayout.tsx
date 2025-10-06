@@ -64,8 +64,14 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
   }
 
   const handleSignOut = async () => {
-    await signOut()
-    router.push('/')
+    try {
+      await signOut()
+      // signOut already does window.location.href = '/' so no need to router.push
+    } catch (error) {
+      console.error('Sign out error:', error)
+      // Force redirect anyway
+      window.location.href = '/'
+    }
   }
 
   const brokerMenuItems = [

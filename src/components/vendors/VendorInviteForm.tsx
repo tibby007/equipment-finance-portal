@@ -143,6 +143,11 @@ ${authUser.profile.company_name}`
       setEmailTemplate(template)
       setSuccess(`✅ Vendor account created successfully!`)
       reset()
+
+      // Call onSuccess callback to refresh vendor list
+      if (onSuccess) {
+        onSuccess()
+      }
     } catch (err: unknown) {
       setError((err as Error).message || 'An error occurred while sending the invitation')
     } finally {
