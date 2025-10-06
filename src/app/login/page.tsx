@@ -14,7 +14,8 @@ export default function LoginPage() {
     console.log('LoginPage: useEffect triggered', { loading, authUser: authUser?.email })
     if (!loading && authUser) {
       console.log('LoginPage: Redirecting to dashboard')
-      router.push('/dashboard')
+      // Use hard redirect to ensure middleware sees the session
+      window.location.href = '/dashboard'
     }
   }, [authUser, loading, router])
 

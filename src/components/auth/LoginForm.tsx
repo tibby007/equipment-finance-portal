@@ -43,7 +43,8 @@ export function LoginForm() {
       }
       
       await signInWithEmail(data.email, data.password)
-      router.push('/dashboard')
+      // Use hard redirect to ensure cookies are properly set
+      window.location.href = '/dashboard'
     } catch (err: unknown) {
       setError((err as Error).message || 'An error occurred during login')
     } finally {
